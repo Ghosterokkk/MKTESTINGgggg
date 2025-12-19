@@ -11,12 +11,14 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
         
         body {
             background-color: #f5f7fa;
             color: #333;
             line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
         }
         
         .container {
@@ -26,8 +28,8 @@
         }
         
         header {
-            background-color: #8B0000;
-            color: white;
+            background-color: #8B0000 !important;
+            color: white !important;
             padding: 20px 0;
             text-align: center;
             border-radius: 8px 8px 0 0;
@@ -38,7 +40,7 @@
         h1 {
             font-size: 28px;
             margin-bottom: 10px;
-            color: #ffffff;
+            color: #ffffff !important;
             text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff0000, 0 0 20px #ff0000;
             animation: neonGlow 2s ease-in-out infinite alternate;
         }
@@ -65,6 +67,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 30px;
             margin-bottom: 20px;
+            transition: background-color 0.3s;
         }
         
         .form-group {
@@ -153,12 +156,13 @@
             background-color: #e09a00;
         }
         
-        .btn-info {
-            background-color: #1a73e8;
+        .btn-disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
         }
         
-        .btn-info:hover {
-            background-color: #1664cc;
+        .btn-disabled:hover {
+            background-color: #cccccc;
         }
         
         .test-section {
@@ -179,6 +183,7 @@
             font-weight: 600;
             margin-bottom: 15px;
             font-size: 18px;
+            white-space: pre-line;
         }
         
         .options {
@@ -675,6 +680,7 @@
             margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
         }
         
         .test-option:hover {
@@ -687,9 +693,36 @@
             background-color: #ffe6e6;
         }
         
+        .test-option.completed {
+            border-color: #0b8043;
+            background-color: #e6f4ea;
+            cursor: default;
+        }
+        
+        .test-option.completed:hover {
+            border-color: #0b8043;
+            background-color: #e6f4ea;
+        }
+        
+        .completed-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #0b8043;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
         .test-option h3 {
             color: #8B0000;
             margin-bottom: 10px;
+        }
+        
+        .test-option.completed h3 {
+            color: #0b8043;
         }
         
         .test-info {
@@ -763,124 +796,179 @@
             border-left: 4px solid #5f6368;
         }
         
-        /* Новые стили для зачётной книжки */
-        .record-book-card {
+        /* Модальное окно для редактирования вопроса */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
             background-color: white;
+            margin: 5% auto;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         
-        .record-item {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: #f8f9fa;
-        }
-        
-        .record-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
         }
         
-        .record-status {
+        .modal-header h3 {
+            margin: 0;
+            color: #8B0000;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .question-textarea {
+            min-height: 100px;
+            font-family: inherit;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .excellent-score-input {
+            width: 120px;
+        }
+        
+        /* Стили для снега */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            color: white;
+            font-size: 1em;
+            text-shadow: 0 0 5px white;
+            user-select: none;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .snowflake:before {
+            content: '❄';
+        }
+        
+        /* Настройки цветов фона */
+        .color-option {
             display: inline-block;
-            padding: 4px 8px;
+            width: 30px;
+            height: 30px;
+            margin: 5px;
             border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
+            cursor: pointer;
+            border: 2px solid transparent;
         }
         
-        .status-passed {
-            background-color: #0b8043;
-            color: white;
+        .color-option:hover {
+            border-color: #333;
         }
         
-        .status-failed {
-            background-color: #d93025;
-            color: white;
+        .color-option.selected {
+            border-color: #8B0000;
+            transform: scale(1.1);
         }
         
-        .status-pending {
-            background-color: #f9ab00;
-            color: black;
-        }
-        
-        .record-info {
-            margin-bottom: 10px;
-        }
-        
-        .record-actions {
-            display: flex;
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             margin-top: 10px;
         }
         
-        .comment-section {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
         }
         
-        .comment-text {
-            font-style: italic;
-            color: #5f6368;
-            margin-top: 5px;
+        .color-input-group input[type="color"] {
+            width: 50px;
+            height: 40px;
+            padding: 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
         }
         
-        .comment-form {
-            margin-top: 10px;
+        .color-input-group input[type="text"] {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
         }
         
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-left: 10px;
         }
         
-        .stat-card {
-            background-color: white;
-            border-radius: 8px;
+        .manual-color-section {
+            margin-top: 20px;
             padding: 15px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px dashed #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
         }
         
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #8B0000;
-            margin-bottom: 5px;
-        }
-        
-        .stat-label {
+        .instruction-text {
             font-size: 14px;
             color: #666;
+            margin-top: 5px;
+            line-height: 1.4;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            border-left: 3px solid #8B0000;
         }
         
-        .no-results {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-style: italic;
+        .instruction-text code {
+            background-color: #e8e8e8;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
         }
         
-        .record-book-navigation {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
+        .instruction-text ul {
+            margin-top: 5px;
+            padding-left: 20px;
         }
         
-        .record-book-filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        .instruction-text li {
+            margin-bottom: 3px;
         }
         
         @media (max-width: 600px) {
@@ -949,19 +1037,28 @@
                 align-items: flex-start;
             }
             
-            .record-header {
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .color-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .color-input-group {
                 flex-direction: column;
                 align-items: flex-start;
             }
             
-            .record-actions {
-                margin-top: 10px;
+            .color-input-group input[type="text"] {
                 width: 100%;
-                justify-content: space-between;
             }
             
-            .record-book-filters {
-                flex-direction: column;
+            .color-preview {
+                margin-left: 0;
+                margin-top: 10px;
             }
         }
         
@@ -994,25 +1091,107 @@
             font-family: monospace;
         }
         
-        .user-test-status {
-            margin-top: 10px;
-            padding: 10px;
+        /* Стили для отображения текста с сохранением форматирования */
+        .preserve-formatting {
+            white-space: pre-line;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        
+        /* Стили для настроек сайта */
+        .site-settings-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #f8f9fa;
-            border-left: 4px solid #f9ab00;
         }
         
-        .user-test-status.passed {
-            border-left-color: #0b8043;
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
         }
         
-        .user-test-status.failed {
-            border-left-color: #d93025;
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        
+        .snow-preview {
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            background-color: #1a237e;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .test-completed-info {
+            background-color: #e6f4ea;
+            border: 1px solid #0b8043;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .test-completed-info h3 {
+            color: #0b8043;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
+    <!-- Снежинки будут добавляться сюда -->
+    <div id="snow-container"></div>
+    
     <div class="firebase-status hidden" id="firebase-status"></div>
+    
+    <!-- Модальное окно для редактирования вопроса -->
+    <div id="question-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Редактирование вопроса</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="modal-question-text">Текст вопроса (поддерживаются переносы строк)</label>
+                <textarea id="modal-question-text" class="question-textarea" rows="4" placeholder="Введите текст вопроса с возможностью переноса строк"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Варианты ответов</label>
+                <div id="modal-options-container">
+                </div>
+                <button class="btn btn-secondary" id="modal-add-option">Добавить вариант</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="modal-correct-answer">Правильный ответ</label>
+                <select id="modal-correct-answer">
+                    <option value="">-- Выберите правильный ответ --</option>
+                </select>
+            </div>
+            
+            <div class="question-time">
+                <label for="modal-question-time">Время на вопрос (секунды):</label>
+                <input type="number" id="modal-question-time" class="time-input" min="10" value="60">
+            </div>
+            
+            <div class="form-group">
+                <button class="btn btn-success" id="modal-save-question">Сохранить вопрос</button>
+                <button class="btn btn-secondary" id="modal-cancel-edit">Отмена</button>
+            </div>
+        </div>
+    </div>
     
     <div class="container">
         <header>
@@ -1115,55 +1294,8 @@ service cloud.firestore {<br>
                     <div class="results-details" id="results-details">
                     </div>
                     
-                    <div class="user-test-status" id="user-test-status">
-                        <p>Ваш результат будет проверен администратором. Ожидайте оценки.</p>
-                    </div>
-                    
                     <button class="btn hidden" id="restart-test">Пройти тест снова</button>
                     <button class="btn btn-secondary" id="logout-btn" style="margin-top: 10px;">Выйти</button>
-                </div>
-            </div>
-            
-            <!-- НОВАЯ СЕКЦИЯ: Зачётная книжка пользователя -->
-            <div class="card test-section" id="record-book-section">
-                <div class="record-book-card">
-                    <div class="record-book-navigation">
-                        <button class="btn btn-secondary" id="back-to-main-from-records">← Назад</button>
-                        <h2>Зачётная книжка</h2>
-                    </div>
-                    
-                    <div class="user-info">
-                        <p><strong>Пользователь:</strong> <span id="record-user-name"></span></p>
-                        <p><strong>Подразделение:</strong> <span id="record-user-unit"></span></p>
-                        <p><strong>Роль:</strong> <span id="record-user-role"></span></p>
-                    </div>
-                    
-                    <div class="stats-grid" id="user-stats">
-                    </div>
-                    
-                    <div class="record-book-filters">
-                        <div class="form-group" style="flex: 1;">
-                            <label for="filter-record-status">Фильтр по статусу</label>
-                            <select id="filter-record-status">
-                                <option value="">Все статусы</option>
-                                <option value="passed">Зачёт</option>
-                                <option value="failed">Незачёт</option>
-                                <option value="pending">Ожидает проверки</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group" style="flex: 1;">
-                            <label for="filter-record-test">Фильтр по тесту</label>
-                            <select id="filter-record-test">
-                                <option value="">Все тесты</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div id="records-list">
-                    </div>
-                    
-                    <button class="btn btn-block" id="go-to-tests" style="margin-top: 20px;">Перейти к тестам</button>
                 </div>
             </div>
         </div>
@@ -1198,8 +1330,8 @@ service cloud.firestore {<br>
                     <div class="tab active" data-tab="users">Управление пользователями</div>
                     <div class="tab" data-tab="questions">Управление вопросами</div>
                     <div class="tab" data-tab="assignments">Назначение тестов</div>
-                    <div class="tab" data-tab="records">Зачётные книжки</div>
-                    <div class="tab" data-tab="user-answers">Ответы пользователей</div>
+                    <div class="tab" data-tab="user-answers">Результаты ответов пользователей</div>
+                    <div class="tab" data-tab="site-settings">Настройки сайта</div>
                 </div>
                 
                 <div class="tab-content active" id="users-tab">
@@ -1254,7 +1386,8 @@ service cloud.firestore {<br>
                                     <option value="none">Нету</option>
                                     <option value="st">СТ</option>
                                     <option value="212">212</option>
-                                    <option value="501">501</option                                    <option value="41">41</option>
+                                    <option value="501">501</option>
+                                    <option value="41">41</option>
                                     <option value="cg">CG</option>
                                     <option value="attached">Прикомандированный</option>
                                 </select>
@@ -1285,6 +1418,11 @@ service cloud.firestore {<br>
                                 <input type="number" id="question-set-time" min="1" value="30">
                             </div>
                             
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label for="question-set-excellent">Процент для "отлично" (0-100)</label>
+                                <input type="number" id="question-set-excellent" min="0" max="100" value="80" class="excellent-score-input">
+                            </div>
+                            
                             <button class="btn" id="add-question-set" style="margin-top: 10px;">Создать новый набор</button>
                         </div>
                         
@@ -1296,40 +1434,32 @@ service cloud.firestore {<br>
                         </div>
                         
                         <div class="question-editor hidden" id="question-editor">
-                            <h3>Редактирование вопроса</h3>
+                            <h3>Редактирование набора вопросов</h3>
                             
                             <div class="form-group">
-                                <label for="edit-question-text">Текст вопроса</label>
-                                <textarea id="edit-question-text" rows="3" placeholder="Введите текст вопроса"></textarea>
+                                <label for="edit-set-name">Название набора</label>
+                                <input type="text" id="edit-set-name" placeholder="Название набора вопросов">
                             </div>
                             
                             <div class="form-group">
-                                <label>Варианты ответов</label>
-                                <div id="options-container">
-                                </div>
-                                <button class="btn btn-secondary" id="add-option">Добавить вариант</button>
+                                <label for="edit-set-time">Общее время теста (минуты)</label>
+                                <input type="number" id="edit-set-time" min="1" value="30">
                             </div>
                             
                             <div class="form-group">
-                                <label for="correct-answer">Правильный ответ</label>
-                                <select id="correct-answer">
-                                    <option value="">-- Выберите правильный ответ --</option>
-                                </select>
-                            </div>
-                            
-                            <div class="question-time">
-                                <label for="question-time">Время на вопрос (секунды):</label>
-                                <input type="number" id="question-time" class="time-input" min="10" value="60">
+                                <label for="edit-set-excellent">Процент для "отлично" (0-100)</label>
+                                <input type="number" id="edit-set-excellent" min="0" max="100" value="80" class="excellent-score-input">
                             </div>
                             
                             <div class="form-group">
-                                <button class="btn btn-success" id="save-question">Сохранить вопрос</button>
-                                <button class="btn btn-secondary" id="cancel-edit">Отмена</button>
+                                <button class="btn btn-success" id="save-question-set">Сохранить изменения</button>
+                                <button class="btn btn-secondary" id="cancel-set-edit">Отмена</button>
                             </div>
                         </div>
                         
                         <div class="form-group">
                             <button class="btn" id="add-question">Добавить вопрос в набор</button>
+                            <button class="btn btn-warning" id="edit-question-set" style="margin-left: 10px;">Редактировать набор</button>
                         </div>
                         
                         <div id="questions-list">
@@ -1393,44 +1523,18 @@ service cloud.firestore {<br>
                     </div>
                 </div>
                 
-                <!-- НОВАЯ ВКЛАДКА: Зачётные книжки -->
-                <div class="tab-content" id="records-tab">
+                <div class="tab-content" id="results-tab">
                     <div class="card">
-                        <h2>Зачётные книжки пользователей</h2>
-                        <p>Просмотр и управление результатами тестирования всех пользователей.</p>
-                        
-                        <div class="filters">
-                            <div class="filter-group">
-                                <label for="filter-records-unit">Фильтр по подразделению</label>
-                                <select id="filter-records-unit">
-                                    <option value="">Все подразделения</option>
-                                    <option value="none">Нету</option>
-                                    <option value="st">СТ</option>
-                                    <option value="212">212</option>
-                                    <option value="501">501</option>
-                                    <option value="41">41</option>
-                                    <option value="cg">CG</option>
-                                    <option value="attached">Прикомандированный</option>
-                                </select>
-                            </div>
-                            
-                            <div class="filter-group">
-                                <label for="filter-records-test">Фильтр по тесту</label>
-                                <select id="filter-records-test">
-                                    <option value="">Все тесты</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div id="records-admin-list">
-                            <div class="no-results">Загрузка данных...</div>
+                        <h2>Результаты тестов</h2>
+                        <p>Просмотр результатов прохождения тестов пользователями.</p>
+                        <div id="test-results-list">
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="tab-content" id="user-answers-tab">
                     <div class="card">
-                        <h2>Ответы пользователей</h2>
+                        <h2>Ответы от пользователей</h2>
                         <p>Просмотр всех ответов пользователей на тесты.</p>
                         
                         <div class="filters">
@@ -1467,6 +1571,115 @@ service cloud.firestore {<br>
                         </div>
                         
                         <div class="user-answers-list" id="user-answers-list">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="site-settings-tab">
+                    <div class="card">
+                        <h2>Настройки сайта</h2>
+                        <p>Настройте внешний вид сайта.</p>
+                        
+                        <div class="site-settings-group">
+                            <h3>Цвет фона сайта</h3>
+                            <p class="instruction-text">
+                                <strong>Инструкция:</strong> Выберите цвет из палитры или введите HEX-код вручную.<br>
+                                <strong>Формат HEX-кода:</strong> #RRGGBB (например: #f5f7fa)<br>
+                                <strong>Примеры популярных цветов:</strong>
+                                <ul>
+                                    <li>Белый: <code>#ffffff</code></li>
+                                    <li>Светло-серый: <code>#f5f7fa</code></li>
+                                    <li>Светло-голубой: <code>#e6f7ff</code></li>
+                                    <li>Светло-зеленый: <code>#e8f5e9</code></li>
+                                    <li>Светло-желтый: <code>#fff8e1</code></li>
+                                </ul>
+                            </p>
+                            
+                            <div class="color-input-group">
+                                <label for="background-color-picker">Выберите цвет:</label>
+                                <input type="color" id="background-color-picker" value="#f5f7fa">
+                                <input type="text" id="background-color-hex" placeholder="#f5f7fa" maxlength="7">
+                                <div class="color-preview" id="background-color-preview" style="background-color: #f5f7fa;"></div>
+                            </div>
+                            
+                            <div class="color-grid" id="background-color-grid">
+                                <div class="color-option selected" style="background-color: #f5f7fa;" data-color="#f5f7fa" title="Светло-серый"></div>
+                                <div class="color-option" style="background-color: #ffffff;" data-color="#ffffff" title="Белый"></div>
+                                <div class="color-option" style="background-color: #f0f8ff;" data-color="#f0f8ff" title="Алиса блю"></div>
+                                <div class="color-option" style="background-color: #fffaf0;" data-color="#fffaf0" title="Цвет морской раковины"></div>
+                                <div class="color-option" style="background-color: #f8f8ff;" data-color="#f8f8ff" title="Призрачно-белый"></div>
+                                <div class="color-option" style="background-color: #f5f5dc;" data-color="#f5f5dc" title="Бежевый"></div>
+                                <div class="color-option" style="background-color: #e6e6fa;" data-color="#e6e6fa" title="Лавандовый"></div>
+                                <div class="color-option" style="background-color: #f0fff0;" data-color="#f0fff0" title="Медовая роса"></div>
+                                <div class="color-option" style="background-color: #fff0f5;" data-color="#fff0f5" title="Розовый лаванда"></div>
+                                <div class="color-option" style="background-color: #f0f0f0;" data-color="#f0f0f0" title="Серый"></div>
+                                <div class="color-option" style="background-color: #e6f7ff;" data-color="#e6f7ff" title="Светло-голубой"></div>
+                                <div class="color-option" style="background-color: #fff8e1;" data-color="#fff8e1" title="Светло-желтый"></div>
+                                <div class="color-option" style="background-color: #f3e5f5;" data-color="#f3e5f5" title="Светло-фиолетовый"></div>
+                                <div class="color-option" style="background-color: #e8f5e9;" data-color="#e8f5e9" title="Светло-зеленый"></div>
+                                <div class="color-option" style="background-color: #ffebee;" data-color="#ffebee" title="Светло-красный"></div>
+                            </div>
+                            
+                            <p>Текущий цвет: <span id="current-color">#f5f7fa</span></p>
+                        </div>
+                        
+                        <div class="site-settings-group">
+                            <h3>Цвет текста сайта</h3>
+                            <p class="instruction-text">
+                                <strong>Инструкция:</strong> Выберите цвет из палитры или введите HEX-код вручную.<br>
+                                <strong>Формат HEX-кода:</strong> #RRGGBB (например: #333333)<br>
+                                <strong>Рекомендации:</strong> Используйте темные цвета для лучшей читаемости на светлом фоне.
+                            </p>
+                            
+                            <div class="color-input-group">
+                                <label for="text-color-picker">Выберите цвет:</label>
+                                <input type="color" id="text-color-picker" value="#333333">
+                                <input type="text" id="text-color-hex" placeholder="#333333" maxlength="7">
+                                <div class="color-preview" id="text-color-preview" style="background-color: #333333;"></div>
+                            </div>
+                            
+                            <div class="color-grid" id="text-color-grid">
+                                <div class="color-option selected" style="background-color: #333333; border: 1px solid #ccc;" data-text-color="#333333" title="Темно-серый"></div>
+                                <div class="color-option" style="background-color: #000000; border: 1px solid #ccc;" data-text-color="#000000" title="Черный"></div>
+                                <div class="color-option" style="background-color: #2c3e50; border: 1px solid #ccc;" data-text-color="#2c3e50" title="Темно-синий"></div>
+                                <div class="color-option" style="background-color: #34495e; border: 1px solid #ccc;" data-text-color="#34495e" title="Серо-синий"></div>
+                                <div class="color-option" style="background-color: #7f8c8d; border: 1px solid #ccc;" data-text-color="#7f8c8d" title="Серый"></div>
+                                <div class="color-option" style="background-color: #2d3436; border: 1px solid #ccc;" data-text-color="#2d3436" title="Темно-серый"></div>
+                                <div class="color-option" style="background-color: #636e72; border: 1px solid #ccc;" data-text-color="#636e72" title="Серый"></div>
+                                <div class="color-option" style="background-color: #2f3640; border: 1px solid #ccc;" data-text-color="#2f3640" title="Темный"></div>
+                                <div class="color-option" style="background-color: #353b48; border: 1px solid #ccc;" data-text-color="#353b48" title="Серый"></div>
+                                <div class="color-option" style="background-color: #40739e; border: 1px solid #ccc;" data-text-color="#40739e" title="Синий"></div>
+                            </div>
+                            
+                            <p>Текущий цвет текста: <span id="current-text-color">#333333</span></p>
+                        </div>
+                        
+                        <div class="site-settings-group">
+                            <h3>Падающий снег</h3>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="enable-snow">
+                                <label for="enable-snow">Включить падающий снег</label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="snow-intensity">Интенсивность снега (1-10):</label>
+                                <input type="range" id="snow-intensity" min="1" max="10" value="5">
+                                <span id="snow-intensity-value">5</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="snow-color">Цвет снежинок:</label>
+                                <input type="color" id="snow-color" value="#ffffff">
+                            </div>
+                            
+                            <div class="snow-preview" id="snow-preview">
+                                <p style="color: white; text-align: center; padding-top: 60px;">Предпросмотр снега</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button class="btn btn-success" id="save-site-settings">Сохранить настройки</button>
+                            <button class="btn btn-secondary" id="reset-site-settings">Сбросить настройки</button>
                         </div>
                     </div>
                 </div>
@@ -1605,103 +1818,7 @@ service cloud.firestore {<br>
             }
         }
 
-        // Firebase функции для записей зачётной книжки
-        async function loadRecords() {
-            try {
-                if (!firebaseConnected || !firebaseHasPermission) {
-                    return getLocalRecords();
-                }
-
-                const snapshot = await db.collection('records').get();
-                const records = [];
-                
-                snapshot.forEach(doc => {
-                    records.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-                
-                // Сохраняем в localStorage для оффлайн режима
-                if (records.length > 0) {
-                    localStorage.setItem('medicalTestRecords', JSON.stringify(records));
-                }
-                
-                return records;
-            } catch (error) {
-                if (error.code === 'permission-denied') {
-                    firebaseHasPermission = false;
-                    updateFirebaseStatus('no-permission');
-                    showFirebaseHelp();
-                }
-                console.error('❌ Ошибка загрузки записей зачётной книжки:', error);
-                return getLocalRecords();
-            }
-        }
-
-        async function saveRecord(record) {
-            try {
-                if (!firebaseConnected || !firebaseHasPermission) {
-                    return saveRecordToLocal(record);
-                }
-
-                let savedRecord = { ...record };
-                
-                // Если у записи нет ID, создаем новую
-                if (!record.id) {
-                    const docRef = await db.collection('records').add(record);
-                    savedRecord.id = docRef.id;
-                } else {
-                    // Если ID есть, обновляем существующую запись
-                    await db.collection('records').doc(record.id).set(record, { merge: true });
-                }
-                
-                // Сохраняем в localStorage для оффлайн режима
-                saveRecordToLocal(savedRecord);
-                return savedRecord;
-            } catch (error) {
-                if (error.code === 'permission-denied') {
-                    firebaseHasPermission = false;
-                    updateFirebaseStatus('no-permission');
-                    showFirebaseHelp();
-                }
-                console.error('❌ Ошибка сохранения записи зачётной книжки:', error);
-                return saveRecordToLocal(record);
-            }
-        }
-
-        async function deleteRecord(recordId) {
-            try {
-                if (!firebaseConnected || !firebaseHasPermission) {
-                    const records = getLocalRecords();
-                    const updatedRecords = records.filter(r => r.id !== recordId);
-                    localStorage.setItem('medicalTestRecords', JSON.stringify(updatedRecords));
-                    return;
-                }
-
-                await db.collection('records').doc(recordId).delete();
-                
-                // Удаляем из localStorage
-                const records = getLocalRecords();
-                const updatedRecords = records.filter(r => r.id !== recordId);
-                localStorage.setItem('medicalTestRecords', JSON.stringify(updatedRecords));
-                
-            } catch (error) {
-                if (error.code === 'permission-denied') {
-                    firebaseHasPermission = false;
-                    updateFirebaseStatus('no-permission');
-                    showFirebaseHelp();
-                }
-                console.error('❌ Ошибка удаления записи зачётной книжки:', error);
-                
-                // Все равно удаляем из localStorage
-                const records = getLocalRecords();
-                const updatedRecords = records.filter(r => r.id !== recordId);
-                localStorage.setItem('medicalTestRecords', JSON.stringify(updatedRecords));
-            }
-        }
-
-        // Остальные Firebase функции остаются без изменений...
+        // Firebase функции
         async function loadUsers() {
             try {
                 if (!firebaseConnected || !firebaseHasPermission) {
@@ -1768,6 +1885,20 @@ service cloud.firestore {<br>
 
         async function deleteUser(userId) {
             try {
+                // Удаляем все назначения пользователя
+                const assignments = await loadAssignments();
+                const userAssignments = assignments.filter(a => a.userId === userId);
+                for (const assignment of userAssignments) {
+                    await deleteAssignment(assignment.id);
+                }
+                
+                // Удаляем все ответы пользователя
+                const userAnswers = await loadUserAnswers();
+                const userUserAnswers = userAnswers.filter(ua => ua.userId === userId);
+                for (const userAnswer of userUserAnswers) {
+                    await deleteUserAnswer(userAnswer.id);
+                }
+                
                 if (!firebaseConnected || !firebaseHasPermission) {
                     const users = getLocalUsers();
                     const updatedUsers = users.filter(u => u.id !== userId);
@@ -1812,6 +1943,7 @@ service cloud.firestore {<br>
                         id: doc.id,
                         name: data.name,
                         totalTime: data.totalTime || 30,
+                        excellentScore: data.excellentScore || 80,
                         questions: data.questions || []
                     });
                 });
@@ -2046,41 +2178,38 @@ service cloud.firestore {<br>
             }
         }
 
-        // Функции для работы с localStorage для записей
-        function getLocalRecords() {
+        async function deleteUserAnswer(answerId) {
             try {
-                const records = localStorage.getItem('medicalTestRecords');
-                return records ? JSON.parse(records) : [];
-            } catch (error) {
-                console.error('❌ Ошибка получения записей из localStorage:', error);
-                return [];
-            }
-        }
-
-        function saveRecordToLocal(record) {
-            try {
-                const records = getLocalRecords();
-                const existingIndex = records.findIndex(r => r.id === record.id);
-                
-                if (existingIndex >= 0) {
-                    records[existingIndex] = record;
-                } else {
-                    // Если запись без id, генерируем временный
-                    if (!record.id) {
-                        record.id = 'local_record_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    }
-                    records.push(record);
+                if (!firebaseConnected || !firebaseHasPermission) {
+                    const userAnswers = getLocalUserAnswers();
+                    const updatedUserAnswers = userAnswers.filter(a => a.id !== answerId);
+                    localStorage.setItem('medicalTestUserAnswers', JSON.stringify(updatedUserAnswers));
+                    return;
                 }
+
+                await db.collection('userAnswers').doc(answerId).delete();
                 
-                localStorage.setItem('medicalTestRecords', JSON.stringify(records));
-                return record;
+                // Удаляем из localStorage
+                const userAnswers = getLocalUserAnswers();
+                const updatedUserAnswers = userAnswers.filter(a => a.id !== answerId);
+                localStorage.setItem('medicalTestUserAnswers', JSON.stringify(updatedUserAnswers));
+                
             } catch (error) {
-                console.error('❌ Ошибка сохранения записи в localStorage:', error);
-                return record;
+                if (error.code === 'permission-denied') {
+                    firebaseHasPermission = false;
+                    updateFirebaseStatus('no-permission');
+                    showFirebaseHelp();
+                }
+                console.error('❌ Ошибка удаления ответа пользователя:', error);
+                
+                // Все равно удаляем из localStorage
+                const userAnswers = getLocalUserAnswers();
+                const updatedUserAnswers = userAnswers.filter(a => a.id !== answerId);
+                localStorage.setItem('medicalTestUserAnswers', JSON.stringify(updatedUserAnswers));
             }
         }
 
-        // Остальные функции для localStorage остаются без изменений...
+        // Функции для работы с localStorage
         function getLocalUsers() {
             try {
                 const users = localStorage.getItem('medicalTestUsers');
@@ -2121,7 +2250,8 @@ service cloud.firestore {<br>
                     const sets = JSON.parse(questionSets);
                     return sets.map(set => ({
                         ...set,
-                        totalTime: set.totalTime || 30
+                        totalTime: set.totalTime || 30,
+                        excellentScore: set.excellentScore || 80
                     }));
                 }
                 return [];
@@ -2252,6 +2382,9 @@ service cloud.firestore {<br>
         let questionTimerInterval;
         let remainingQuestionTime = 0;
         let selectedAssignment = null;
+        let currentEditingQuestionSetId = null;
+        let currentEditingQuestionIndex = null;
+        let snowInterval = null;
 
         // DOM элементы
         const userPanel = document.getElementById('user-panel');
@@ -2266,7 +2399,6 @@ service cloud.firestore {<br>
         const testSelectionSection = document.getElementById('test-selection-section');
         const testSection = document.getElementById('test-section');
         const resultsSection = document.getElementById('results-section');
-        const recordBookSection = document.getElementById('record-book-section');
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
         const backToLoginBtn = document.getElementById('back-to-login');
@@ -2285,41 +2417,516 @@ service cloud.firestore {<br>
         const resultMessageElement = document.getElementById('result-message');
         const resultsSummaryElement = document.getElementById('results-summary');
         const resultsDetailsElement = document.getElementById('results-details');
-        const userTestStatusElement = document.getElementById('user-test-status');
         const backToUserLoginBtn = document.getElementById('back-to-user-login');
         const backToUserContainer = document.getElementById('back-to-user-container');
         const hideFirebaseHelpBtn = document.getElementById('hide-firebase-help');
-        const backToMainFromRecordsBtn = document.getElementById('back-to-main-from-records');
-        const goToTestsBtn = document.getElementById('go-to-tests');
-        const recordUserName = document.getElementById('record-user-name');
-        const recordUserUnit = document.getElementById('record-user-unit');
-        const recordUserRole = document.getElementById('record-user-role');
-        const userStatsElement = document.getElementById('user-stats');
-        const recordsList = document.getElementById('records-list');
-        const filterRecordStatus = document.getElementById('filter-record-status');
-        const filterRecordTest = document.getElementById('filter-record-test');
-        const recordsAdminList = document.getElementById('records-admin-list');
-        const filterRecordsUnit = document.getElementById('filter-records-unit');
-        const filterRecordsTest = document.getElementById('filter-records-test');
+
+        // Модальное окно элементы
+        const questionModal = document.getElementById('question-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalCancelBtn = document.getElementById('modal-cancel-edit');
+        const modalQuestionText = document.getElementById('modal-question-text');
+        const modalOptionsContainer = document.getElementById('modal-options-container');
+        const modalAddOptionBtn = document.getElementById('modal-add-option');
+        const modalCorrectAnswer = document.getElementById('modal-correct-answer');
+        const modalQuestionTime = document.getElementById('modal-question-time');
+        const modalSaveQuestionBtn = document.getElementById('modal-save-question');
+        const modalTitle = document.getElementById('modal-title');
+
+        // Настройки сайта элементы
+        const saveSiteSettingsBtn = document.getElementById('save-site-settings');
+        const resetSiteSettingsBtn = document.getElementById('reset-site-settings');
+        const enableSnowCheckbox = document.getElementById('enable-snow');
+        const snowIntensitySlider = document.getElementById('snow-intensity');
+        const snowIntensityValue = document.getElementById('snow-intensity-value');
+        const snowColorPicker = document.getElementById('snow-color');
+        const snowPreview = document.getElementById('snow-preview');
+        const currentColorSpan = document.getElementById('current-color');
+        const currentTextColorSpan = document.getElementById('current-text-color');
+        const colorOptions = document.querySelectorAll('.color-option[data-color]');
+        const textColorOptions = document.querySelectorAll('.color-option[data-text-color]');
+        
+        // Новые элементы для ручного ввода цвета
+        const backgroundColorPicker = document.getElementById('background-color-picker');
+        const backgroundColorHex = document.getElementById('background-color-hex');
+        const backgroundColorPreview = document.getElementById('background-color-preview');
+        const textColorPicker = document.getElementById('text-color-picker');
+        const textColorHex = document.getElementById('text-color-hex');
+        const textColorPreview = document.getElementById('text-color-preview');
+        const backgroundColorGrid = document.getElementById('background-color-grid');
+        const textColorGrid = document.getElementById('text-color-grid');
 
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', function() {
             showLoginSection();
-            loadSettings();
+            loadSiteSettings();
             initEventListeners();
+            initSiteSettings();
             loadAdminData();
+            initModal();
+            initColorInputs(); // Инициализация обработчиков для ручного ввода цветов
         });
 
-        function loadSettings() {
-            const savedSettings = localStorage.getItem('medicalTestSettings');
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
+        function initModal() {
+            // Закрытие модального окна
+            closeModalBtn.addEventListener('click', function() {
+                questionModal.style.display = 'none';
+            });
+
+            modalCancelBtn.addEventListener('click', function() {
+                questionModal.style.display = 'none';
+            });
+
+            // Закрытие модального окна при клике вне его
+            window.addEventListener('click', function(event) {
+                if (event.target === questionModal) {
+                    questionModal.style.display = 'none';
+                }
+            });
+
+            // Добавление варианта ответа в модальном окне
+            modalAddOptionBtn.addEventListener('click', addModalOption);
+
+            // Сохранение вопроса из модального окна
+            modalSaveQuestionBtn.addEventListener('click', saveModalQuestion);
+        }
+
+        function initSiteSettings() {
+            // Обработчики для выбора цвета фона из сетки
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const color = this.getAttribute('data-color');
+                    currentColorSpan.textContent = color;
+                    
+                    // Обновляем поля ручного ввода
+                    backgroundColorPicker.value = color;
+                    backgroundColorHex.value = color;
+                    backgroundColorPreview.style.backgroundColor = color;
+                });
+            });
+
+            // Обработчики для выбора цвета текста из сетки
+            textColorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    textColorOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    const color = this.getAttribute('data-text-color');
+                    currentTextColorSpan.textContent = color;
+                    
+                    // Обновляем поля ручного ввода
+                    textColorPicker.value = color;
+                    textColorHex.value = color;
+                    textColorPreview.style.backgroundColor = color;
+                });
+            });
+
+            // Обработчик для интенсивности снега
+            snowIntensitySlider.addEventListener('input', function() {
+                snowIntensityValue.textContent = this.value;
+            });
+
+            // Обработчик для сохранения настроек
+            saveSiteSettingsBtn.addEventListener('click', saveSiteSettings);
+
+            // Обработчик для сброса настроек
+            resetSiteSettingsBtn.addEventListener('click', resetSiteSettings);
+
+            // Предпросмотр снега
+            enableSnowCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    createSnowPreview();
+                } else {
+                    clearSnowPreview();
+                }
+            });
+
+            snowIntensitySlider.addEventListener('input', function() {
+                if (enableSnowCheckbox.checked) {
+                    clearSnowPreview();
+                    createSnowPreview();
+                }
+            });
+            
+            snowColorPicker.addEventListener('input', function() {
+                if (enableSnowCheckbox.checked) {
+                    clearSnowPreview();
+                    createSnowPreview();
+                }
+            });
+        }
+        
+        // Инициализация обработчиков для ручного ввода цветов
+        function initColorInputs() {
+            // Обработчики для цвета фона
+            backgroundColorPicker.addEventListener('input', function() {
+                const color = this.value;
+                backgroundColorHex.value = color;
+                backgroundColorPreview.style.backgroundColor = color;
+                currentColorSpan.textContent = color;
+                
+                // Обновляем выбранный элемент в сетке (если есть)
+                updateSelectedColorInGrid(color, colorOptions, 'data-color');
+            });
+            
+            backgroundColorHex.addEventListener('input', function() {
+                let color = this.value.trim();
+                
+                // Добавляем # если его нет
+                if (color && color[0] !== '#') {
+                    color = '#' + color;
+                }
+                
+                // Проверяем формат HEX
+                if (/^#[0-9A-F]{6}$/i.test(color)) {
+                    backgroundColorPicker.value = color;
+                    backgroundColorPreview.style.backgroundColor = color;
+                    currentColorSpan.textContent = color;
+                    
+                    // Обновляем выбранный элемент в сетке (если есть)
+                    updateSelectedColorInGrid(color, colorOptions, 'data-color');
+                }
+            });
+            
+            // Обработчики для цвета текста
+            textColorPicker.addEventListener('input', function() {
+                const color = this.value;
+                textColorHex.value = color;
+                textColorPreview.style.backgroundColor = color;
+                currentTextColorSpan.textContent = color;
+                
+                // Обновляем выбранный элемент в сетке (если есть)
+                updateSelectedColorInGrid(color, textColorOptions, 'data-text-color');
+            });
+            
+            textColorHex.addEventListener('input', function() {
+                let color = this.value.trim();
+                
+                // Добавляем # если его нет
+                if (color && color[0] !== '#') {
+                    color = '#' + color;
+                }
+                
+                // Проверяем формат HEX
+                if (/^#[0-9A-F]{6}$/i.test(color)) {
+                    textColorPicker.value = color;
+                    textColorPreview.style.backgroundColor = color;
+                    currentTextColorSpan.textContent = color;
+                    
+                    // Обновляем выбранный элемент в сетке (если есть)
+                    updateSelectedColorInGrid(color, textColorOptions, 'data-text-color');
+                }
+            });
+        }
+        
+        // Функция для обновления выбранного элемента в сетке цветов
+        function updateSelectedColorInGrid(color, options, attributeName) {
+            let foundInGrid = false;
+            
+            // Проверяем, есть ли цвет в сетке
+            options.forEach(option => {
+                if (option.getAttribute(attributeName) === color) {
+                    option.classList.add('selected');
+                    foundInGrid = true;
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            // Если цвета нет в сетке, снимаем выделение со всех элементов
+            if (!foundInGrid) {
+                options.forEach(option => option.classList.remove('selected'));
             }
         }
 
-        function saveSettings() {
-            const settings = {};
-            localStorage.setItem('medicalTestSettings', JSON.stringify(settings));
+        function loadSiteSettings() {
+            const settings = JSON.parse(localStorage.getItem('medicalTestSiteSettings') || '{}');
+            
+            // Загрузка цвета фона
+            if (settings.backgroundColor) {
+                document.body.style.backgroundColor = settings.backgroundColor;
+                // Устанавливаем выбранный цвет в интерфейсе
+                backgroundColorPicker.value = settings.backgroundColor;
+                backgroundColorHex.value = settings.backgroundColor;
+                backgroundColorPreview.style.backgroundColor = settings.backgroundColor;
+                currentColorSpan.textContent = settings.backgroundColor;
+                
+                // Обновляем сетку цветов
+                updateSelectedColorInGrid(settings.backgroundColor, colorOptions, 'data-color');
+            }
+            
+            // Загрузка цвета текста
+            if (settings.textColor) {
+                document.body.style.color = settings.textColor;
+                // Устанавливаем выбранный цвет текста в интерфейсе
+                textColorPicker.value = settings.textColor;
+                textColorHex.value = settings.textColor;
+                textColorPreview.style.backgroundColor = settings.textColor;
+                currentTextColorSpan.textContent = settings.textColor;
+                
+                // Обновляем сетку цветов
+                updateSelectedColorInGrid(settings.textColor, textColorOptions, 'data-text-color');
+                
+                // Применяем цвет текста ко всем элементам, кроме header
+                applyTextColor(settings.textColor);
+            }
+            
+            // Загрузка настроек снега
+            if (settings.snowEnabled) {
+                enableSnowCheckbox.checked = true;
+                if (settings.snowIntensity) {
+                    snowIntensitySlider.value = settings.snowIntensity;
+                    snowIntensityValue.textContent = settings.snowIntensity;
+                }
+                if (settings.snowColor) {
+                    snowColorPicker.value = settings.snowColor;
+                }
+                startSnow(settings.snowIntensity || 5, settings.snowColor || '#ffffff');
+            }
+        }
+
+        function applyTextColor(color) {
+            // Применяем цвет текста ко всем элементам на странице, кроме header
+            const allElements = document.querySelectorAll('body *:not(header):not(header *):not(.snowflake)');
+            allElements.forEach(element => {
+                // Проверяем, не является ли элемент кнопкой или элементом с особыми стилями
+                if (!element.classList.contains('btn') && 
+                    !element.classList.contains('snowflake') &&
+                    !element.closest('header')) {
+                    element.style.color = color;
+                }
+            });
+            
+            // Отдельно применяем к карточкам и текстовым элементам
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                if (!card.closest('header')) {
+                    card.style.color = color;
+                }
+            });
+            
+            // Применяем к тексту в footer
+            const footer = document.querySelector('footer');
+            if (footer) {
+                footer.style.color = color;
+            }
+            
+            // Применяем к заголовкам h2, h3, h4 (кроме header)
+            const headings = document.querySelectorAll('h2, h3, h4, h5, h6');
+            headings.forEach(heading => {
+                if (!heading.closest('header')) {
+                    heading.style.color = color;
+                }
+            });
+            
+            // Применяем к параграфам
+            const paragraphs = document.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                if (!p.closest('header')) {
+                    p.style.color = color;
+                }
+            });
+            
+            // Применяем к меткам
+            const labels = document.querySelectorAll('label');
+            labels.forEach(label => {
+                if (!label.closest('header')) {
+                    label.style.color = color;
+                }
+            });
+            
+            // Применяем к тексту в input и textarea (цвет текста внутри)
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.style.color = color;
+            });
+        }
+
+        function saveSiteSettings() {
+            const backgroundColor = backgroundColorHex.value.trim() || backgroundColorPicker.value;
+            const textColor = textColorHex.value.trim() || textColorPicker.value;
+            
+            // Проверяем формат цветов
+            const hexColorRegex = /^#[0-9A-F]{6}$/i;
+            
+            if (!hexColorRegex.test(backgroundColor)) {
+                alert('Пожалуйста, введите корректный HEX-код цвета фона (формат: #RRGGBB)');
+                return;
+            }
+            
+            if (!hexColorRegex.test(textColor)) {
+                alert('Пожалуйста, введите корректный HEX-код цвета текста (формат: #RRGGBB)');
+                return;
+            }
+            
+            const snowEnabled = enableSnowCheckbox.checked;
+            const snowIntensity = parseInt(snowIntensitySlider.value);
+            const snowColor = snowColorPicker.value;
+            
+            const settings = {
+                backgroundColor: backgroundColor,
+                textColor: textColor,
+                snowEnabled: snowEnabled,
+                snowIntensity: snowIntensity,
+                snowColor: snowColor
+            };
+            
+            localStorage.setItem('medicalTestSiteSettings', JSON.stringify(settings));
+            
+            // Применяем настройки
+            document.body.style.backgroundColor = backgroundColor;
+            document.body.style.color = textColor;
+            applyTextColor(textColor);
+            
+            if (snowEnabled) {
+                startSnow(snowIntensity, snowColor);
+            } else {
+                stopSnow();
+            }
+            
+            alert('Настройки сайта сохранены');
+        }
+
+        function resetSiteSettings() {
+            if (confirm('Вы уверены, что хотите сбросить настройки сайта?')) {
+                localStorage.removeItem('medicalTestSiteSettings');
+                document.body.style.backgroundColor = '#f5f7fa';
+                document.body.style.color = '#333333';
+                
+                // Сбрасываем цвет текста для всех элементов
+                applyTextColor('#333333');
+                
+                stopSnow();
+                
+                // Сброс интерфейса
+                colorOptions.forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.getAttribute('data-color') === '#f5f7fa') {
+                        option.classList.add('selected');
+                        currentColorSpan.textContent = '#f5f7fa';
+                    }
+                });
+                
+                textColorOptions.forEach(option => {
+                    option.classList.remove('selected');
+                    if (option.getAttribute('data-text-color') === '#333333') {
+                        option.classList.add('selected');
+                        currentTextColorSpan.textContent = '#333333';
+                    }
+                });
+                
+                // Сброс полей ручного ввода
+                backgroundColorPicker.value = '#f5f7fa';
+                backgroundColorHex.value = '#f5f7fa';
+                backgroundColorPreview.style.backgroundColor = '#f5f7fa';
+                
+                textColorPicker.value = '#333333';
+                textColorHex.value = '#333333';
+                textColorPreview.style.backgroundColor = '#333333';
+                
+                enableSnowCheckbox.checked = false;
+                snowIntensitySlider.value = 5;
+                snowIntensityValue.textContent = '5';
+                snowColorPicker.value = '#ffffff';
+                
+                alert('Настройки сайта сброшены');
+            }
+        }
+
+        // Система снега
+        function startSnow(intensity = 5, color = '#ffffff') {
+            stopSnow();
+            
+            const snowContainer = document.getElementById('snow-container');
+            if (!snowContainer) return;
+            
+            // Рассчитываем количество снежинок на основе интенсивности
+            const snowflakeCount = intensity * 10;
+            
+            // Создаем снежинки
+            for (let i = 0; i < snowflakeCount; i++) {
+                createSnowflake(snowContainer, color);
+            }
+            
+            // Запускаем интервал для создания новых снежинок
+            snowInterval = setInterval(() => {
+                createSnowflake(snowContainer, color);
+            }, 1000 / intensity);
+        }
+
+        function createSnowflake(container, color = '#ffffff') {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.style.color = color;
+            snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+            
+            container.appendChild(snowflake);
+            
+            // Анимация падения
+            const animationDuration = Math.random() * 10 + 10;
+            snowflake.animate([
+                { transform: 'translateY(0) rotate(0deg)', opacity: snowflake.style.opacity },
+                { transform: `translateY(100vh) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+            ], {
+                duration: animationDuration * 1000,
+                easing: 'linear'
+            });
+            
+            // Удаляем снежинку после анимации
+            setTimeout(() => {
+                if (snowflake.parentNode) {
+                    snowflake.parentNode.removeChild(snowflake);
+                }
+            }, animationDuration * 1000);
+        }
+
+        function stopSnow() {
+            if (snowInterval) {
+                clearInterval(snowInterval);
+                snowInterval = null;
+            }
+            
+            const snowContainer = document.getElementById('snow-container');
+            if (snowContainer) {
+                snowContainer.innerHTML = '';
+            }
+        }
+
+        function createSnowPreview() {
+            clearSnowPreview();
+            const previewContainer = snowPreview;
+            const color = snowColorPicker.value;
+            const intensity = parseInt(snowIntensitySlider.value);
+            
+            // Создаем несколько снежинок для предпросмотра
+            for (let i = 0; i < intensity * 3; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.color = color;
+                snowflake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                previewContainer.appendChild(snowflake);
+                
+                // Анимация падения в предпросмотре
+                const animationDuration = Math.random() * 5 + 3;
+                snowflake.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: snowflake.style.opacity },
+                    { transform: `translateY(150px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: animationDuration * 1000,
+                    iterations: Infinity
+                });
+            }
+        }
+
+        function clearSnowPreview() {
+            const previewContainer = snowPreview;
+            previewContainer.innerHTML = '<p style="color: white; text-align: center; padding-top: 60px;">Предпросмотр снега</p>';
         }
 
         function initEventListeners() {
@@ -2379,14 +2986,6 @@ service cloud.firestore {<br>
                 showLoginSection();
             });
 
-            backToMainFromRecordsBtn.addEventListener('click', function() {
-                showTestSelectionSection();
-            });
-
-            goToTestsBtn.addEventListener('click', function() {
-                showTestSelectionSection();
-            });
-
             startSelectedTestBtn.addEventListener('click', function() {
                 if (selectedAssignment) {
                     startSelectedTest();
@@ -2404,12 +3003,6 @@ service cloud.firestore {<br>
             document.getElementById('filter-answers-role').addEventListener('change', loadUserAnswersList);
             document.getElementById('filter-answers-test').addEventListener('change', loadUserAnswersList);
 
-            filterRecordStatus.addEventListener('change', loadUserRecords);
-            filterRecordTest.addEventListener('change', loadUserRecords);
-
-            filterRecordsUnit.addEventListener('change', loadAdminRecords);
-            filterRecordsTest.addEventListener('change', loadAdminRecords);
-
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
@@ -2426,10 +3019,10 @@ service cloud.firestore {<br>
                         loadQuestionSetsList();
                     } else if (tabId === 'assignments') {
                         loadAssignmentsList();
-                    } else if (tabId === 'records') {
-                        loadAdminRecords();
                     } else if (tabId === 'user-answers') {
                         loadUserAnswersList();
+                    } else if (tabId === 'site-settings') {
+                        // Ничего не делать, настройки уже загружены
                     }
                 });
             });
@@ -2441,17 +3034,49 @@ service cloud.firestore {<br>
             document.getElementById('add-question-set').addEventListener('click', addQuestionSet);
             document.getElementById('question-sets').addEventListener('change', loadQuestionsForSet);
             document.getElementById('add-question').addEventListener('click', addNewQuestion);
-            document.getElementById('add-option').addEventListener('click', addOption);
-            document.getElementById('save-question').addEventListener('click', saveQuestionChanges);
-            document.getElementById('cancel-edit').addEventListener('click', cancelQuestionEdit);
+            document.getElementById('edit-question-set').addEventListener('click', editQuestionSet);
+            document.getElementById('save-question-set').addEventListener('click', saveQuestionSetChanges);
+            document.getElementById('cancel-set-edit').addEventListener('click', cancelSetEdit);
 
             document.getElementById('assign-test').addEventListener('click', assignTest);
-
-            document.getElementById('save-settings').addEventListener('click', saveSystemSettings);
 
             if (hideFirebaseHelpBtn) {
                 hideFirebaseHelpBtn.addEventListener('click', hideFirebaseHelp);
             }
+        }
+
+        function addModalOption() {
+            const optionIndex = modalOptionsContainer.children.length;
+            
+            const optionEditor = document.createElement('div');
+            optionEditor.className = 'option-editor';
+            
+            optionEditor.innerHTML = `
+                <input type="text" class="modal-option-input" placeholder="Вариант ответа ${optionIndex + 1}">
+                <button class="btn btn-danger remove-modal-option" type="button">×</button>
+            `;
+            
+            modalOptionsContainer.appendChild(optionEditor);
+            
+            updateModalCorrectAnswerOptions();
+            
+            optionEditor.querySelector('.remove-modal-option').addEventListener('click', function() {
+                optionEditor.remove();
+                updateModalCorrectAnswerOptions();
+            });
+        }
+
+        function updateModalCorrectAnswerOptions() {
+            const options = document.querySelectorAll('.modal-option-input');
+            
+            modalCorrectAnswer.innerHTML = '<option value="">-- Выберите правильный ответ --</option>';
+            
+            options.forEach((optionInput, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = optionInput.value || `Вариант ${index + 1}`;
+                modalCorrectAnswer.appendChild(option);
+            });
         }
 
         // Аутентификация администратора
@@ -2489,8 +3114,7 @@ service cloud.firestore {<br>
                     document.getElementById('login-error').classList.add('hidden');
                     document.getElementById('no-assignment-error').classList.add('hidden');
                     
-                    // Проверяем, есть ли у пользователя уже зачёт по какому-либо тесту
-                    await checkUserTestStatus();
+                    await loadUserAssignments();
                     
                 } else {
                     document.getElementById('login-error').classList.remove('hidden');
@@ -2503,63 +3127,39 @@ service cloud.firestore {<br>
             }
         }
 
-        // Проверка статуса тестов пользователя
-        async function checkUserTestStatus() {
-            try {
-                const assignments = await loadAssignments();
-                const userAssignments = assignments.filter(a => a.userId === currentUser.id);
-                
-                if (userAssignments.length === 0) {
-                    document.getElementById('no-assignment-error').classList.remove('hidden');
-                    return;
-                }
-                
-                const records = await loadRecords();
-                const userRecords = records.filter(r => r.userId === currentUser.id);
-                
-                // Проверяем, есть ли у пользователя активный зачёт
-                const hasActivePassedRecord = userRecords.some(r => r.status === 'passed' && r.isActive === true);
-                
-                if (hasActivePassedRecord) {
-                    // У пользователя уже есть зачёт, показываем зачётную книжку
-                    showUserRecordBook();
-                } else {
-                    // Нет активного зачёта, показываем доступные тесты
-                    await loadUserAssignments();
-                }
-                
-            } catch (error) {
-                console.error('❌ Ошибка проверки статуса тестов:', error);
-                await loadUserAssignments();
-            }
-        }
-
         // Загрузка назначений пользователя
         async function loadUserAssignments() {
             try {
                 const assignments = await loadAssignments();
+                const userAnswers = await loadUserAnswers();
                 const userAssignments = assignments.filter(a => a.userId === currentUser.id);
                 
                 if (userAssignments.length === 0) {
                     document.getElementById('no-assignment-error').classList.remove('hidden');
+                    document.getElementById('login-error').classList.add('hidden');
                     return;
                 }
                 
                 const questionSets = await loadQuestionSets();
                 const availableTests = [];
+                const completedTests = [];
                 
                 for (const assignment of userAssignments) {
                     const questionSet = questionSets.find(qs => qs.id === assignment.questionSetId);
                     if (questionSet) {
-                        // Проверяем, есть ли уже запись об этом тесте
-                        const records = await loadRecords();
-                        const existingRecord = records.find(r => 
-                            r.userId === currentUser.id && 
-                            r.questionSetId === assignment.questionSetId &&
-                            r.isActive === true
+                        // Проверяем, есть ли у пользователя результаты для этого теста
+                        const existingAnswer = userAnswers.find(ua => 
+                            ua.userId === currentUser.id && 
+                            ua.questionSetId === questionSet.id
                         );
                         
-                        if (!existingRecord) {
+                        if (existingAnswer) {
+                            completedTests.push({
+                                assignment: assignment,
+                                questionSet: questionSet,
+                                userAnswer: existingAnswer
+                            });
+                        } else {
                             availableTests.push({
                                 assignment: assignment,
                                 questionSet: questionSet
@@ -2568,55 +3168,106 @@ service cloud.firestore {<br>
                     }
                 }
                 
-                if (availableTests.length > 0) {
-                    showTestSelection(availableTests);
+                if (availableTests.length > 0 || completedTests.length > 0) {
+                    showTestSelection(availableTests, completedTests);
                 } else {
-                    // Нет доступных тестов, показываем зачётную книжку
-                    showUserRecordBook();
+                    document.getElementById('no-assignment-error').classList.remove('hidden');
+                    document.getElementById('no-assignment-error').textContent = 'У вас нет доступных тестов для прохождения.';
                 }
                 
             } catch (error) {
                 console.error('❌ Ошибка загрузки назначений:', error);
                 document.getElementById('no-assignment-error').classList.remove('hidden');
+                document.getElementById('no-assignment-error').textContent = 'Ошибка загрузки назначений.';
             }
         }
 
         // Отображение выбора теста
-        function showTestSelection(availableTests) {
+        function showTestSelection(availableTests, completedTests = []) {
             availableTestsContainer.innerHTML = '';
             selectedAssignment = null;
             startSelectedTestBtn.style.display = 'none';
             
-            if (availableTests.length === 0) {
-                availableTestsContainer.innerHTML = '<p>Нет доступных тестов</p>';
-                return;
+            // Если есть пройденные тесты, показываем информацию о них
+            if (completedTests.length > 0) {
+                const completedInfo = document.createElement('div');
+                completedInfo.className = 'test-completed-info';
+                completedInfo.innerHTML = `
+                    <h3>Пройденные тесты</h3>
+                    <p>Вы уже прошли следующие тесты. Повторное прохождение недоступно.</p>
+                `;
+                availableTestsContainer.appendChild(completedInfo);
+                
+                completedTests.forEach((test, index) => {
+                    const testOption = document.createElement('div');
+                    testOption.className = 'test-option completed';
+                    testOption.setAttribute('data-index', index);
+                    
+                    testOption.innerHTML = `
+                        <div class="completed-badge">Пройден</div>
+                        <h3>${test.questionSet.name}</h3>
+                        <p>${test.questionSet.questions ? test.questionSet.questions.length : 0} вопросов</p>
+                        <div class="test-info">
+                            <span>Результат: ${test.userAnswer.score}/${test.userAnswer.totalQuestions} (${test.userAnswer.percentage}%)</span>
+                            <span>Пройден: ${new Date(test.userAnswer.timestamp).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                    `;
+                    
+                    availableTestsContainer.appendChild(testOption);
+                });
             }
             
-            availableTests.forEach((test, index) => {
-                const testOption = document.createElement('div');
-                testOption.className = 'test-option';
-                testOption.setAttribute('data-index', index);
+            // Если есть доступные тесты, показываем их
+            if (availableTests.length > 0) {
+                if (completedTests.length > 0) {
+                    const availableHeader = document.createElement('h3');
+                    availableHeader.textContent = 'Доступные тесты';
+                    availableHeader.style.marginTop = '20px';
+                    availableHeader.style.marginBottom = '10px';
+                    availableTestsContainer.appendChild(availableHeader);
+                }
                 
-                testOption.innerHTML = `
-                    <h3>${test.questionSet.name}</h3>
-                    <p>${test.questionSet.questions ? test.questionSet.questions.length : 0} вопросов</p>
-                    <div class="test-info">
-                        <span>Время: ${test.questionSet.totalTime || 30} мин.</span>
-                        <span>Назначен: ${new Date(test.assignment.assignedAt).toLocaleDateString('ru-RU')}</span>
-                    </div>
-                `;
-                
-                testOption.addEventListener('click', function() {
-                    document.querySelectorAll('.test-option').forEach(opt => {
-                        opt.classList.remove('selected');
+                availableTests.forEach((test, index) => {
+                    const testOption = document.createElement('div');
+                    testOption.className = 'test-option';
+                    testOption.setAttribute('data-index', index);
+                    
+                    testOption.innerHTML = `
+                        <h3>${test.questionSet.name}</h3>
+                        <p>${test.questionSet.questions ? test.questionSet.questions.length : 0} вопросов</p>
+                        <div class="test-info">
+                            <span>Время: ${test.questionSet.totalTime || 30} мин.</span>
+                            <span>Назначен: ${new Date(test.assignment.assignedAt).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                    `;
+                    
+                    testOption.addEventListener('click', function() {
+                        document.querySelectorAll('.test-option:not(.completed)').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        selectedAssignment = test;
+                        startSelectedTestBtn.style.display = 'block';
                     });
-                    this.classList.add('selected');
-                    selectedAssignment = test;
-                    startSelectedTestBtn.style.display = 'block';
+                    
+                    availableTestsContainer.appendChild(testOption);
                 });
-                
-                availableTestsContainer.appendChild(testOption);
-            });
+            }
+            
+            // Если нет доступных тестов, но есть пройденные
+            if (availableTests.length === 0 && completedTests.length > 0) {
+                const noAvailableMessage = document.createElement('div');
+                noAvailableMessage.className = 'test-completed-info';
+                noAvailableMessage.innerHTML = `
+                    <p>Все назначенные вам тесты уже пройдены. Обратитесь к администратору для получения новых тестов.</p>
+                `;
+                availableTestsContainer.appendChild(noAvailableMessage);
+            }
+            
+            // Если нет ни доступных, ни пройденных тестов
+            if (availableTests.length === 0 && completedTests.length === 0) {
+                availableTestsContainer.innerHTML = '<p>Нет доступных тестов</p>';
+            }
             
             showTestSelectionSection();
         }
@@ -2638,444 +3289,12 @@ service cloud.firestore {<br>
             showTestSection();
         }
 
-        // Отображение зачётной книжки пользователя
-        async function showUserRecordBook() {
-            recordUserName.textContent = currentUser.login;
-            recordUserUnit.textContent = getUnitDisplayName(currentUser.unit || 'none');
-            recordUserRole.textContent = getRoleDisplayName(currentUser.role);
-            
-            // Загружаем записи пользователя
-            await loadUserRecords();
-            
-            showRecordBookSection();
-        }
-
-        async function loadUserRecords() {
-            try {
-                const records = await loadRecords();
-                const userRecords = records.filter(r => r.userId === currentUser.id);
-                
-                // Фильтрация записей
-                let filteredRecords = userRecords;
-                
-                const statusFilter = filterRecordStatus.value;
-                if (statusFilter) {
-                    filteredRecords = filteredRecords.filter(r => r.status === statusFilter);
-                }
-                
-                const testFilter = filterRecordTest.value;
-                if (testFilter) {
-                    filteredRecords = filteredRecords.filter(r => r.questionSetId === testFilter);
-                }
-                
-                // Сортируем по дате (сначала новые)
-                filteredRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
-                // Обновляем статистику
-                updateUserStats(userRecords);
-                
-                // Обновляем список записей
-                displayUserRecords(filteredRecords);
-                
-                // Обновляем фильтр по тестам
-                await updateRecordTestFilter();
-                
-            } catch (error) {
-                console.error('❌ Ошибка загрузки записей пользователя:', error);
-                recordsList.innerHTML = '<div class="no-results">Ошибка загрузки записей</div>';
-            }
-        }
-
-        function updateUserStats(userRecords) {
-            const totalRecords = userRecords.length;
-            const passedRecords = userRecords.filter(r => r.status === 'passed').length;
-            const failedRecords = userRecords.filter(r => r.status === 'failed').length;
-            const pendingRecords = userRecords.filter(r => r.status === 'pending').length;
-            const activeRecords = userRecords.filter(r => r.isActive === true).length;
-            
-            userStatsElement.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-value">${totalRecords}</div>
-                    <div class="stat-label">Всего тестов</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${passedRecords}</div>
-                    <div class="stat-label">Зачётов</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${failedRecords}</div>
-                    <div class="stat-label">Незачётов</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${activeRecords}</div>
-                    <div class="stat-label">Активных</div>
-                </div>
-            `;
-        }
-
-        async function updateRecordTestFilter() {
-            const questionSets = await loadQuestionSets();
-            const records = await loadRecords();
-            const userRecords = records.filter(r => r.userId === currentUser.id);
-            
-            const userTestIds = [...new Set(userRecords.map(r => r.questionSetId))];
-            
-            filterRecordTest.innerHTML = '<option value="">Все тесты</option>';
-            
-            userTestIds.forEach(testId => {
-                const questionSet = questionSets.find(qs => qs.id === testId);
-                if (questionSet) {
-                    const option = document.createElement('option');
-                    option.value = testId;
-                    option.textContent = questionSet.name;
-                    filterRecordTest.appendChild(option);
-                }
-            });
-        }
-
-        function displayUserRecords(records) {
-            recordsList.innerHTML = '';
-            
-            if (records.length === 0) {
-                recordsList.innerHTML = '<div class="no-results">Записи не найдены</div>';
-                return;
-            }
-            
-            records.forEach(record => {
-                const recordItem = document.createElement('div');
-                recordItem.className = 'record-item';
-                
-                let statusText = '';
-                let statusClass = '';
-                
-                if (record.status === 'passed') {
-                    statusText = 'Зачёт';
-                    statusClass = 'status-passed';
-                } else if (record.status === 'failed') {
-                    statusText = 'Незачёт';
-                    statusClass = 'status-failed';
-                } else {
-                    statusText = 'Ожидает проверки';
-                    statusClass = 'status-pending';
-                }
-                
-                const date = new Date(record.createdAt).toLocaleString('ru-RU');
-                const score = record.score !== undefined ? `${record.score}/${record.totalQuestions}` : 'Не оценено';
-                
-                recordItem.innerHTML = `
-                    <div class="record-header">
-                        <div>
-                            <strong>${record.questionSetName}</strong>
-                            <span class="record-status ${statusClass}">${statusText}</span>
-                            ${record.isActive ? '<span class="record-status status-passed" style="background-color: #1a73e8;">Активный</span>' : ''}
-                        </div>
-                        <div class="record-info">
-                            <div>${date}</div>
-                        </div>
-                    </div>
-                    <div class="record-info">
-                        <div><strong>Результат:</strong> ${score}</div>
-                        <div><strong>Процент:</strong> ${record.percentage !== undefined ? record.percentage + '%' : 'Не оценено'}</div>
-                        ${record.comment ? `
-                            <div class="comment-section">
-                                <strong>Комментарий администратора:</strong>
-                                <div class="comment-text">${record.comment}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-                
-                recordsList.appendChild(recordItem);
-            });
-        }
-
-        // Загрузка записей для админ-панели
-        async function loadAdminRecords() {
-            try {
-                const records = await loadRecords();
-                const users = await loadUsers();
-                const questionSets = await loadQuestionSets();
-                
-                // Фильтрация записей
-                let filteredRecords = records;
-                
-                const unitFilter = filterRecordsUnit.value;
-                if (unitFilter) {
-                    filteredRecords = filteredRecords.filter(record => {
-                        const user = users.find(u => u.id === record.userId);
-                        return user && user.unit === unitFilter;
-                    });
-                }
-                
-                const testFilter = filterRecordsTest.value;
-                if (testFilter) {
-                    filteredRecords = filteredRecords.filter(record => record.questionSetId === testFilter);
-                }
-                
-                // Сортируем по дате (сначала новые)
-                filteredRecords.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
-                // Обновляем список тестов в фильтре
-                updateAdminRecordsTestFilter(questionSets);
-                
-                // Отображаем записи
-                displayAdminRecords(filteredRecords, users, questionSets);
-                
-            } catch (error) {
-                console.error('❌ Ошибка загрузки записей для админ-панели:', error);
-                recordsAdminList.innerHTML = '<div class="no-results">Ошибка загрузки записей</div>';
-            }
-        }
-
-        function updateAdminRecordsTestFilter(questionSets) {
-            filterRecordsTest.innerHTML = '<option value="">Все тесты</option>';
-            
-            questionSets.forEach(qs => {
-                const option = document.createElement('option');
-                option.value = qs.id;
-                option.textContent = qs.name;
-                filterRecordsTest.appendChild(option);
-            });
-        }
-
-        function displayAdminRecords(records, users, questionSets) {
-            recordsAdminList.innerHTML = '';
-            
-            if (records.length === 0) {
-                recordsAdminList.innerHTML = '<div class="no-results">Записи не найдены</div>';
-                return;
-            }
-            
-            records.forEach(record => {
-                const user = users.find(u => u.id === record.userId);
-                const questionSet = questionSets.find(qs => qs.id === record.questionSetId);
-                
-                if (!user || !questionSet) return;
-                
-                const recordItem = document.createElement('div');
-                recordItem.className = 'record-item';
-                recordItem.id = `record-${record.id}`;
-                
-                let statusText = '';
-                let statusClass = '';
-                
-                if (record.status === 'passed') {
-                    statusText = 'Зачёт';
-                    statusClass = 'status-passed';
-                } else if (record.status === 'failed') {
-                    statusText = 'Незачёт';
-                    statusClass = 'status-failed';
-                } else {
-                    statusText = 'Ожидает проверки';
-                    statusClass = 'status-pending';
-                }
-                
-                const date = new Date(record.createdAt).toLocaleString('ru-RU');
-                const score = record.score !== undefined ? `${record.score}/${record.totalQuestions}` : 'Не оценено';
-                const unitDisplay = getUnitDisplayName(user.unit || 'none');
-                const unitClass = getUnitClass(user.unit || 'none');
-                const roleDisplay = getRoleDisplayName(user.role);
-                
-                recordItem.innerHTML = `
-                    <div class="record-header">
-                        <div>
-                            <strong>${user.login}</strong>
-                            <span class="user-unit ${unitClass}">${unitDisplay}</span>
-                            <span class="user-role role-${user.role}">${roleDisplay}</span>
-                            <span class="record-status ${statusClass}">${statusText}</span>
-                            ${record.isActive ? '<span class="record-status status-passed" style="background-color: #1a73e8;">Активный</span>' : ''}
-                        </div>
-                        <div class="record-info">
-                            <div><strong>Тест:</strong> ${questionSet.name}</div>
-                            <div>${date}</div>
-                        </div>
-                    </div>
-                    <div class="record-info">
-                        <div><strong>Результат:</strong> ${score} (${record.percentage !== undefined ? record.percentage + '%' : 'Не оценено'})</div>
-                        ${record.comment ? `
-                            <div class="comment-section">
-                                <strong>Комментарий:</strong>
-                                <div class="comment-text">${record.comment}</div>
-                            </div>
-                        ` : ''}
-                        <div class="record-actions">
-                            ${record.status === 'pending' ? `
-                                <button class="btn btn-success set-passed" data-record-id="${record.id}">Поставить зачёт</button>
-                                <button class="btn btn-danger set-failed" data-record-id="${record.id}">Поставить незачёт</button>
-                            ` : ''}
-                            ${record.status !== 'pending' ? `
-                                <button class="btn btn-warning reset-record" data-record-id="${record.id}">Сбросить оценку</button>
-                            ` : ''}
-                            <button class="btn btn-info add-comment" data-record-id="${record.id}">Комментарий</button>
-                            <button class="btn btn-danger delete-record" data-record-id="${record.id}">Удалить запись</button>
-                        </div>
-                    </div>
-                `;
-                
-                recordsAdminList.appendChild(recordItem);
-            });
-            
-            // Добавляем обработчики событий
-            recordsAdminList.querySelectorAll('.set-passed').forEach(button => {
-                button.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-record-id');
-                    setRecordStatus(recordId, 'passed');
-                });
-            });
-            
-            recordsAdminList.querySelectorAll('.set-failed').forEach(button => {
-                button.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-record-id');
-                    setRecordStatus(recordId, 'failed');
-                });
-            });
-            
-            recordsAdminList.querySelectorAll('.reset-record').forEach(button => {
-                button.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-record-id');
-                    resetRecordStatus(recordId);
-                });
-            });
-            
-            recordsAdminList.querySelectorAll('.add-comment').forEach(button => {
-                button.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-record-id');
-                    addCommentToRecord(recordId);
-                });
-            });
-            
-            recordsAdminList.querySelectorAll('.delete-record').forEach(button => {
-                button.addEventListener('click', function() {
-                    const recordId = this.getAttribute('data-record-id');
-                    deleteRecordById(recordId);
-                });
-            });
-        }
-
-        async function setRecordStatus(recordId, status) {
-            try {
-                const records = await loadRecords();
-                const recordIndex = records.findIndex(r => r.id === recordId);
-                
-                if (recordIndex === -1) {
-                    alert('Запись не найдена');
-                    return;
-                }
-                
-                const record = records[recordIndex];
-                record.status = status;
-                record.isActive = status === 'passed'; // Если зачёт - делаем активным
-                record.checkedAt = new Date().toISOString();
-                record.checkedBy = 'admin'; // Здесь можно добать ID администратора
-                
-                // Если ставим зачёт, деактивируем другие записи по этому же тесту для этого пользователя
-                if (status === 'passed') {
-                    records.forEach((r, index) => {
-                        if (r.userId === record.userId && 
-                            r.questionSetId === record.questionSetId && 
-                            r.id !== recordId &&
-                            r.isActive === true) {
-                            records[index].isActive = false;
-                        }
-                    });
-                }
-                
-                await saveRecord(record);
-                
-                // Сохраняем все изменения
-                for (const r of records) {
-                    await saveRecord(r);
-                }
-                
-                alert(`Статус успешно изменён на "${status === 'passed' ? 'Зачёт' : 'Незачёт'}"`);
-                await loadAdminRecords();
-                
-            } catch (error) {
-                console.error('❌ Ошибка изменения статуса записи:', error);
-                alert('Ошибка при изменении статуса записи');
-            }
-        }
-
-        async function resetRecordStatus(recordId) {
-            if (!confirm('Вы уверены, что хотите сбросить оценку? Пользователь сможет пройти тест заново.')) {
-                return;
-            }
-            
-            try {
-                const records = await loadRecords();
-                const recordIndex = records.findIndex(r => r.id === recordId);
-                
-                if (recordIndex === -1) {
-                    alert('Запись не найдена');
-                    return;
-                }
-                
-                const record = records[recordIndex];
-                record.status = 'pending';
-                record.isActive = false;
-                record.comment = record.comment ? record.comment + ' (Оценка сброшена)' : 'Оценка сброшена';
-                record.checkedAt = null;
-                
-                await saveRecord(record);
-                
-                alert('Оценка успешно сброшена. Пользователь может пройти тест заново.');
-                await loadAdminRecords();
-                
-            } catch (error) {
-                console.error('❌ Ошибка сброса оценки:', error);
-                alert('Ошибка при сбросе оценки');
-            }
-        }
-
-        async function addCommentToRecord(recordId) {
-            const comment = prompt('Введите комментарий к записи:', '');
-            
-            if (comment === null) return; // Пользователь нажал отмена
-            
-            try {
-                const records = await loadRecords();
-                const recordIndex = records.findIndex(r => r.id === recordId);
-                
-                if (recordIndex === -1) {
-                    alert('Запись не найдена');
-                    return;
-                }
-                
-                records[recordIndex].comment = comment;
-                await saveRecord(records[recordIndex]);
-                
-                alert('Комментарий успешно добавлен');
-                await loadAdminRecords();
-                
-            } catch (error) {
-                console.error('❌ Ошибка добавления комментария:', error);
-                alert('Ошибка при добавлении комментария');
-            }
-        }
-
-        async function deleteRecordById(recordId) {
-            if (!confirm('Вы уверены, что хотите удалить эту запись? Пользователь сможет пройти тест заново.')) {
-                return;
-            }
-            
-            try {
-                await deleteRecord(recordId);
-                alert('Запись успешно удалена. Пользователь может пройти тест заново.');
-                await loadAdminRecords();
-                
-            } catch (error) {
-                console.error('❌ Ошибка удаления записи:', error);
-                alert('Ошибка при удалении записи');
-            }
-        }
-
         // Отображение разделов
         function showLoginSection() {
             loginSection.style.display = 'block';
             testSelectionSection.style.display = 'none';
             testSection.style.display = 'none';
             resultsSection.style.display = 'none';
-            recordBookSection.style.display = 'none';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             document.getElementById('login-error').classList.add('hidden');
@@ -3088,7 +3307,6 @@ service cloud.firestore {<br>
             testSelectionSection.style.display = 'block';
             testSection.style.display = 'none';
             resultsSection.style.display = 'none';
-            recordBookSection.style.display = 'none';
             adminToggle.style.display = 'none';
         }
 
@@ -3097,7 +3315,6 @@ service cloud.firestore {<br>
             testSelectionSection.style.display = 'none';
             testSection.style.display = 'block';
             resultsSection.style.display = 'none';
-            recordBookSection.style.display = 'none';
             adminToggle.style.display = 'none';
         }
 
@@ -3106,16 +3323,6 @@ service cloud.firestore {<br>
             testSelectionSection.style.display = 'none';
             testSection.style.display = 'none';
             resultsSection.style.display = 'block';
-            recordBookSection.style.display = 'none';
-            adminToggle.style.display = 'block';
-        }
-
-        function showRecordBookSection() {
-            loginSection.style.display = 'none';
-            testSelectionSection.style.display = 'none';
-            testSection.style.display = 'none';
-            resultsSection.style.display = 'none';
-            recordBookSection.style.display = 'block';
             adminToggle.style.display = 'block';
         }
 
@@ -3188,7 +3395,7 @@ service cloud.firestore {<br>
             questionElement.className = 'question';
             
             const questionText = document.createElement('div');
-            questionText.className = 'question-text';
+            questionText.className = 'question-text preserve-formatting';
             questionText.textContent = question.text;
             questionElement.appendChild(questionText);
             
@@ -3286,10 +3493,6 @@ service cloud.firestore {<br>
             
             const results = calculateResults();
             await saveUserAnswers(results);
-            
-            // Создаем запись в зачётной книжке
-            await createRecord(results);
-            
             displayResults(results);
             showResultsSection();
         }
@@ -3315,6 +3518,7 @@ service cloud.firestore {<br>
                 userRole: currentUser.role,
                 questionSetId: currentQuestionSet.id,
                 questionSetName: currentQuestionSet.name,
+                excellentScore: currentQuestionSet.excellentScore || 80,
                 assignmentId: selectedAssignment ? selectedAssignment.assignment.id : null,
                 answers: [],
                 score: 0,
@@ -3348,33 +3552,6 @@ service cloud.firestore {<br>
             return results;
         }
 
-        // Создание записи в зачётной книжке
-        async function createRecord(results) {
-            try {
-                const record = {
-                    userId: currentUser.id,
-                    userName: currentUser.login,
-                    userUnit: currentUser.unit || 'none',
-                    userRole: currentUser.role,
-                    questionSetId: currentQuestionSet.id,
-                    questionSetName: currentQuestionSet.name,
-                    score: results.score,
-                    totalQuestions: results.totalQuestions,
-                    percentage: results.percentage,
-                    status: 'pending', // По умолчанию ожидает проверки
-                    isActive: false, // Не активна до проверки администратором
-                    createdAt: new Date().toISOString(),
-                    answers: results.answers
-                };
-                
-                await saveRecord(record);
-                console.log('✅ Запись в зачётной книжке создана');
-                
-            } catch (error) {
-                console.error('❌ Ошибка создания записи в зачётной книжке:', error);
-            }
-        }
-
         // Сохранение ответов пользователя
         async function saveUserAnswers(results) {
             try {
@@ -3389,6 +3566,7 @@ service cloud.firestore {<br>
                     score: results.score,
                     totalQuestions: results.totalQuestions,
                     percentage: results.percentage,
+                    excellentScore: results.excellentScore,
                     timestamp: new Date().toISOString(),
                     mskTime: getMoscowTime()
                 };
@@ -3418,13 +3596,19 @@ service cloud.firestore {<br>
             });
         }
 
-        // Отображение результатов (без показа правильных/неправильных ответов)
+        // Отображение результатов
         function displayResults(results) {
             currentUserElement.textContent = currentUser.login;
             currentUnitElement.textContent = getUnitDisplayName(currentUser.unit || 'none');
             scoreElement.textContent = `${results.score} из ${results.totalQuestions}`;
             
-            resultMessageElement.textContent = 'Тест завершён! Ваши результаты отправлены на проверку администратору.';
+            if (results.percentage >= results.excellentScore) {
+                resultMessageElement.textContent = 'Отличный результат!';
+            } else if (results.percentage >= 60) {
+                resultMessageElement.textContent = 'Хороший результат!';
+            } else {
+                resultMessageElement.textContent = 'Вам нужно больше практики.';
+            }
             
             resultsSummaryElement.innerHTML = `
                 <div class="summary-item">
@@ -3439,28 +3623,46 @@ service cloud.firestore {<br>
                     <div class="summary-value">${results.totalQuestions - results.correctAnswers}</div>
                     <div class="summary-label">Неправильных</div>
                 </div>
+                <div class="summary-item">
+                    <div class="summary-value">${results.excellentScore}%</div>
+                    <div class="summary-label">Для "отлично"</div>
+                </div>
             `;
             
-            // Скрываем детальные результаты, показываем только статистику
             resultsDetailsElement.innerHTML = '';
-            resultsDetailsElement.innerHTML = '<p>Детальные результаты ответов скрыты. Администратор проверит ваши ответы и выставит оценку.</p>';
             
-            // Обновляем статус теста
-            userTestStatusElement.innerHTML = `
-                <p><strong>Статус:</strong> Ожидает проверки администратором</p>
-                <p>Вы можете просмотреть свои зачёты в зачётной книжке.</p>
-                <button class="btn btn-info" id="view-record-book" style="margin-top: 10px;">Перейти в зачётную книжку</button>
-            `;
-            
-            userTestStatusElement.classList.remove('passed', 'failed');
-            userTestStatusElement.classList.add('pending');
-            
-            restartTestBtn.classList.add('hidden');
-            
-            // Добавляем обработчик для перехода в зачётную книжку
-            document.getElementById('view-record-book').addEventListener('click', function() {
-                showUserRecordBook();
+            results.answers.forEach((answer, index) => {
+                const resultItem = document.createElement('div');
+                
+                if (answer.isCorrect) {
+                    resultItem.className = 'result-item correct';
+                } else if (answer.isAnswered) {
+                    resultItem.className = 'result-item incorrect';
+                } else {
+                    resultItem.className = 'result-item unanswered';
+                }
+                
+                const userAnswerClass = answer.isCorrect ? 'user-answer correct' : 'user-answer';
+                
+                let answerHtml = `
+                    <div class="result-question preserve-formatting">${index + 1}. ${answer.question}</div>
+                    <div class="result-answer">Ваш ответ: <span class="${userAnswerClass}">${answer.userAnswer}</span></div>
+                `;
+                
+                if (!answer.isCorrect) {
+                    answerHtml += `<div class="result-answer">Правильный ответ: <span class="correct-answer">${answer.correctAnswer}</span></div>`;
+                }
+                
+                if (!answer.isAnswered) {
+                    answerHtml += `<div class="result-answer">Вы не ответили на этот вопрос</div>`;
+                }
+                
+                resultItem.innerHTML = answerHtml;
+                resultsDetailsElement.appendChild(resultItem);
             });
+            
+            // Скрываем кнопку "Пройти тест снова"
+            restartTestBtn.classList.add('hidden');
         }
 
         // Перезапуск теста
@@ -3474,7 +3676,6 @@ service cloud.firestore {<br>
             await loadQuestionSetsList();
             await loadAssignmentsList();
             await loadUserAnswersList();
-            await loadAdminRecords();
         }
 
         // Управление пользователями
@@ -3557,7 +3758,7 @@ service cloud.firestore {<br>
         }
 
         async function deleteUserById(userId) {
-            if (!confirm('Вы уверены, что хотите удалить этого пользователя? Все назначенные тесты также будут удалены.')) {
+            if (!confirm('Вы уверены, что хотите удалить этого пользователя? Все назначенные тесты и результаты также будут удалены.')) {
                 return;
             }
             
@@ -3731,7 +3932,7 @@ service cloud.firestore {<br>
                 questionSets.forEach(qs => {
                     const option = document.createElement('option');
                     option.value = qs.id;
-                    option.textContent = `${qs.name} (${qs.totalTime || 30} мин)`;
+                    option.textContent = `${qs.name} (${qs.totalTime || 30} мин, ${qs.excellentScore || 80}% для отлично)`;
                     questionSetsSelect.appendChild(option);
                 });
                 
@@ -3746,6 +3947,7 @@ service cloud.firestore {<br>
         async function addQuestionSet() {
             const name = document.getElementById('question-set-name').value;
             const totalTimeValue = parseInt(document.getElementById('question-set-time').value) || 30;
+            const excellentScore = parseInt(document.getElementById('question-set-excellent').value) || 80;
             
             if (!name) {
                 alert('Введите название набора вопросов');
@@ -3764,6 +3966,7 @@ service cloud.firestore {<br>
                 const newQuestionSet = {
                     name: name,
                     totalTime: totalTimeValue,
+                    excellentScore: excellentScore,
                     questions: []
                 };
                 
@@ -3771,6 +3974,7 @@ service cloud.firestore {<br>
                 
                 document.getElementById('question-set-name').value = '';
                 document.getElementById('question-set-time').value = '30';
+                document.getElementById('question-set-excellent').value = '80';
                 await loadQuestionSetsList();
                 
             } catch (error) {
@@ -3779,13 +3983,92 @@ service cloud.firestore {<br>
             }
         }
 
+        async function editQuestionSet() {
+            const questionSetId = document.getElementById('question-sets').value;
+            
+            if (!questionSetId) {
+                alert('Выберите набор вопросов для редактирования');
+                return;
+            }
+            
+            try {
+                const questionSets = await loadQuestionSets();
+                const questionSet = questionSets.find(qs => qs.id === questionSetId);
+                
+                if (!questionSet) {
+                    alert('Набор вопросов не найден');
+                    return;
+                }
+                
+                document.getElementById('edit-set-name').value = questionSet.name;
+                document.getElementById('edit-set-time').value = questionSet.totalTime || 30;
+                document.getElementById('edit-set-excellent').value = questionSet.excellentScore || 80;
+                
+                document.getElementById('question-editor').classList.remove('hidden');
+                document.getElementById('save-question-set').setAttribute('data-set-id', questionSetId);
+                
+            } catch (error) {
+                console.error('❌ Ошибка редактирования набора вопросов:', error);
+                alert('Ошибка при загрузке набора вопросов');
+            }
+        }
+
+        async function saveQuestionSetChanges() {
+            const questionSetId = document.getElementById('save-question-set').getAttribute('data-set-id');
+            const name = document.getElementById('edit-set-name').value;
+            const totalTimeValue = parseInt(document.getElementById('edit-set-time').value) || 30;
+            const excellentScore = parseInt(document.getElementById('edit-set-excellent').value) || 80;
+            
+            if (!name) {
+                alert('Введите название набора вопросов');
+                return;
+            }
+            
+            try {
+                const questionSets = await loadQuestionSets();
+                const questionSetIndex = questionSets.findIndex(qs => qs.id === questionSetId);
+                
+                if (questionSetIndex === -1) {
+                    alert('Набор вопросов не найден');
+                    return;
+                }
+                
+                const nameExists = questionSets.some(qs => qs.id !== questionSetId && qs.name === name);
+                if (nameExists) {
+                    alert('Набор вопросов с таким названием уже существует');
+                    return;
+                }
+                
+                const updatedSet = {
+                    ...questionSets[questionSetIndex],
+                    name: name,
+                    totalTime: totalTimeValue,
+                    excellentScore: excellentScore
+                };
+                
+                await saveQuestionSet(updatedSet);
+                
+                document.getElementById('question-editor').classList.add('hidden');
+                await loadQuestionSetsList();
+                await loadQuestionsForSet();
+                
+            } catch (error) {
+                console.error('❌ Ошибка сохранения набора вопросов:', error);
+                alert('Ошибка при сохранении набора вопросов');
+            }
+        }
+
+        function cancelSetEdit() {
+            document.getElementById('question-editor').classList.add('hidden');
+        }
+
         async function loadQuestionsForSet() {
             const questionSetId = document.getElementById('question-sets').value;
             
             if (!questionSetId) {
                 document.getElementById('questions-list').innerHTML = '';
-                document.getElementById('question-editor').classList.add('hidden');
                 document.getElementById('add-question').style.display = 'none';
+                document.getElementById('edit-question-set').style.display = 'none';
                 return;
             }
             
@@ -3800,6 +4083,7 @@ service cloud.firestore {<br>
                 
                 displayQuestionsList(questionSet);
                 document.getElementById('add-question').style.display = 'block';
+                document.getElementById('edit-question-set').style.display = 'block';
                 document.getElementById('add-question').setAttribute('data-set-id', questionSetId);
                 
             } catch (error) {
@@ -3826,6 +4110,7 @@ service cloud.firestore {<br>
                 <div class="question-text">
                     <strong>Название:</strong> ${questionSet.name}<br>
                     <strong>Общее время теста:</strong> ${questionSet.totalTime || 30} минут<br>
+                    <strong>Процент для "отлично":</strong> ${questionSet.excellentScore || 80}%<br>
                     <strong>Количество вопросов:</strong> ${questionSet.questions ? questionSet.questions.length : 0}
                 </div>
             `;
@@ -3853,7 +4138,7 @@ service cloud.firestore {<br>
                             <button class="btn btn-danger delete-question" data-set-id="${questionSet.id}" data-index="${index}">Удалить</button>
                         </div>
                     </div>
-                    <div class="question-text">${question.text}</div>
+                    <div class="question-text preserve-formatting">${question.text}</div>
                     <div class="question-options">
                         <strong>Варианты ответов:</strong>
                         <ol>
@@ -3880,7 +4165,7 @@ service cloud.firestore {<br>
                 button.addEventListener('click', function() {
                     const questionSetId = this.getAttribute('data-set-id');
                     const questionIndex = parseInt(this.getAttribute('data-index'));
-                    editQuestion(questionSetId, questionIndex);
+                    openEditQuestionModal(questionSetId, questionIndex);
                 });
             });
             
@@ -3902,8 +4187,8 @@ service cloud.firestore {<br>
                 
                 document.getElementById('question-sets').value = '';
                 document.getElementById('questions-list').innerHTML = '';
-                document.getElementById('question-editor').classList.add('hidden');
                 document.getElementById('add-question').style.display = 'none';
+                document.getElementById('edit-question-set').style.display = 'none';
                 
                 await loadQuestionSetsList();
                 
@@ -3923,56 +4208,23 @@ service cloud.firestore {<br>
                 return;
             }
             
-            document.getElementById('edit-question-text').value = '';
-            document.getElementById('options-container').innerHTML = '';
-            document.getElementById('correct-answer').innerHTML = '<option value="">-- Выберите правильный ответ --</option>';
-            document.getElementById('question-time').value = questionTime;
+            currentEditingQuestionSetId = questionSetId;
+            currentEditingQuestionIndex = -1;
             
-            addOption();
-            addOption();
+            modalTitle.textContent = 'Добавление нового вопроса';
+            modalQuestionText.value = '';
+            modalOptionsContainer.innerHTML = '';
+            modalQuestionTime.value = questionTime;
             
-            document.getElementById('question-editor').classList.remove('hidden');
-            document.getElementById('save-question').setAttribute('data-set-id', questionSetId);
-            document.getElementById('save-question').setAttribute('data-index', '-1');
+            addModalOption();
+            addModalOption();
+            
+            updateModalCorrectAnswerOptions();
+            
+            questionModal.style.display = 'block';
         }
 
-        function addOption() {
-            const optionsContainer = document.getElementById('options-container');
-            const optionIndex = optionsContainer.children.length;
-            
-            const optionEditor = document.createElement('div');
-            optionEditor.className = 'option-editor';
-            
-            optionEditor.innerHTML = `
-                <input type="text" class="option-input" placeholder="Вариант ответа ${optionIndex + 1}">
-                <button class="btn btn-danger remove-option">×</button>
-            `;
-            
-            optionsContainer.appendChild(optionEditor);
-            
-            updateCorrectAnswerOptions();
-            
-            optionEditor.querySelector('.remove-option').addEventListener('click', function() {
-                optionEditor.remove();
-                updateCorrectAnswerOptions();
-            });
-        }
-
-        function updateCorrectAnswerOptions() {
-            const correctAnswerSelect = document.getElementById('correct-answer');
-            const options = document.querySelectorAll('.option-input');
-            
-            correctAnswerSelect.innerHTML = '<option value="">-- Выберите правильный ответ --</option>';
-            
-            options.forEach((optionInput, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = optionInput.value || `Вариант ${index + 1}`;
-                correctAnswerSelect.appendChild(option);
-            });
-        }
-
-        async function editQuestion(questionSetId, questionIndex) {
+        async function openEditQuestionModal(questionSetId, questionIndex) {
             try {
                 const questionSets = await loadQuestionSets();
                 const questionSet = questionSets.find(qs => qs.id === questionSetId);
@@ -3982,52 +4234,51 @@ service cloud.firestore {<br>
                     return;
                 }
                 
+                currentEditingQuestionSetId = questionSetId;
+                currentEditingQuestionIndex = questionIndex;
+                
                 const question = questionSet.questions[questionIndex];
                 
-                document.getElementById('edit-question-text').value = question.text;
-                document.getElementById('question-time').value = question.time || questionTime;
+                modalTitle.textContent = 'Редактирование вопроса';
+                modalQuestionText.value = question.text;
+                modalQuestionTime.value = question.time || questionTime;
                 
-                const optionsContainer = document.getElementById('options-container');
-                optionsContainer.innerHTML = '';
+                modalOptionsContainer.innerHTML = '';
                 
                 question.options.forEach((option, index) => {
                     const optionEditor = document.createElement('div');
                     optionEditor.className = 'option-editor';
                     
                     optionEditor.innerHTML = `
-                        <input type="text" class="option-input" value="${option}" placeholder="Вариант ответа ${index + 1}">
-                        <button class="btn btn-danger remove-option">×</button>
+                        <input type="text" class="modal-option-input" value="${option}" placeholder="Вариант ответа ${index + 1}">
+                        <button class="btn btn-danger remove-modal-option" type="button">×</button>
                     `;
                     
-                    optionsContainer.appendChild(optionEditor);
+                    modalOptionsContainer.appendChild(optionEditor);
                     
-                    optionEditor.querySelector('.remove-option').addEventListener('click', function() {
+                    optionEditor.querySelector('.remove-modal-option').addEventListener('click', function() {
                         optionEditor.remove();
-                        updateCorrectAnswerOptions();
+                        updateModalCorrectAnswerOptions();
                     });
                 });
                 
-                updateCorrectAnswerOptions();
-                document.getElementById('correct-answer').value = question.correctAnswer;
+                updateModalCorrectAnswerOptions();
+                modalCorrectAnswer.value = question.correctAnswer;
                 
-                document.getElementById('question-editor').classList.remove('hidden');
-                document.getElementById('save-question').setAttribute('data-set-id', questionSetId);
-                document.getElementById('save-question').setAttribute('data-index', questionIndex.toString());
+                questionModal.style.display = 'block';
                 
             } catch (error) {
-                console.error('❌ Ошибка редактирования вопроса:', error);
+                console.error('❌ Ошибка открытия модального окна редактирования вопроса:', error);
                 alert('Ошибка при загрузке вопроса');
             }
         }
 
-        async function saveQuestionChanges() {
-            const questionSetId = document.getElementById('save-question').getAttribute('data-set-id');
-            const questionIndex = parseInt(document.getElementById('save-question').getAttribute('data-index'));
-            const questionText = document.getElementById('edit-question-text').value;
-            const correctAnswer = parseInt(document.getElementById('correct-answer').value);
-            const questionTimeValue = parseInt(document.getElementById('question-time').value) || questionTime;
+        async function saveModalQuestion() {
+            const questionText = modalQuestionText.value;
+            const correctAnswer = parseInt(modalCorrectAnswer.value);
+            const questionTimeValue = parseInt(modalQuestionTime.value) || questionTime;
             
-            const optionInputs = document.querySelectorAll('.option-input');
+            const optionInputs = document.querySelectorAll('.modal-option-input');
             const options = Array.from(optionInputs).map(input => input.value.trim()).filter(value => value !== '');
             
             if (!questionText) {
@@ -4047,7 +4298,7 @@ service cloud.firestore {<br>
             
             try {
                 const questionSets = await loadQuestionSets();
-                const questionSetIndex = questionSets.findIndex(qs => qs.id === questionSetId);
+                const questionSetIndex = questionSets.findIndex(qs => qs.id === currentEditingQuestionSetId);
                 
                 if (questionSetIndex === -1) {
                     alert('Набор вопросов не найден');
@@ -4061,28 +4312,24 @@ service cloud.firestore {<br>
                     time: questionTimeValue
                 };
                 
-                if (questionIndex === -1) {
+                if (currentEditingQuestionIndex === -1) {
                     if (!questionSets[questionSetIndex].questions) {
                         questionSets[questionSetIndex].questions = [];
                     }
                     questionSets[questionSetIndex].questions.push(updatedQuestion);
                 } else {
-                    questionSets[questionSetIndex].questions[questionIndex] = updatedQuestion;
+                    questionSets[questionSetIndex].questions[currentEditingQuestionIndex] = updatedQuestion;
                 }
                 
                 await saveQuestionSet(questionSets[questionSetIndex]);
                 
-                document.getElementById('question-editor').classList.add('hidden');
+                questionModal.style.display = 'none';
                 await loadQuestionsForSet();
                 
             } catch (error) {
                 console.error('❌ Ошибка сохранения вопроса:', error);
                 alert('Ошибка при сохранении вопроса');
             }
-        }
-
-        function cancelQuestionEdit() {
-            document.getElementById('question-editor').classList.add('hidden');
         }
 
         async function deleteQuestion(questionSetId, questionIndex) {
@@ -4257,7 +4504,7 @@ service cloud.firestore {<br>
                 
             } catch (error) {
                 console.error('❌ Ошибка назначения теста:', error);
-                alert('Ошибка при назначении теста');
+                alert('Ошибка при назначении тестa');
             }
         }
 
@@ -4309,7 +4556,9 @@ service cloud.firestore {<br>
                             <div class="user-answer-info">
                                 <div><strong>Тест:</strong> ${answer.questionSetName}</div>
                                 <div><strong>Результат:</strong> ${answer.score}/${answer.totalQuestions} (${answer.percentage}%)</div>
+                                <div><strong>Процент для "отлично":</strong> ${answer.excellentScore || 80}%</div>
                                 <div><strong>Время прохождения:</strong> ${answer.mskTime || date}</div>
+                                <button class="btn btn-danger delete-user-answer" data-id="${answer.id}">Удалить результат</button>
                             </div>
                         </div>
                         <div class="user-answer-details">
@@ -4321,7 +4570,7 @@ service cloud.firestore {<br>
                         
                         answerItem.innerHTML += `
                             <div class="answer-question ${answerClass}">
-                                <div><strong>Вопрос ${index + 1}:</strong> ${userAnswer.question}</div>
+                                <div class="preserve-formatting"><strong>Вопрос ${index + 1}:</strong> ${userAnswer.question}</div>
                                 <div><strong>Ответ пользователя:</strong> ${userAnswer.userAnswer}</div>
                                 ${!userAnswer.isCorrect ? `<div><strong>Правильный ответ:</strong> ${userAnswer.correctAnswer}</div>` : ''}
                                 <div><strong>Статус:</strong> ${userAnswer.isCorrect ? 'Правильно' : (userAnswer.isAnswered ? 'Неправильно' : 'Не отвечено')}</div>
@@ -4333,16 +4582,31 @@ service cloud.firestore {<br>
                     userAnswersList.appendChild(answerItem);
                 }
                 
+                userAnswersList.querySelectorAll('.delete-user-answer').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const answerId = this.getAttribute('data-id');
+                        deleteUserAnswerById(answerId);
+                    });
+                });
+                
             } catch (error) {
                 console.error('❌ Ошибка загрузки ответов пользователей:', error);
                 userAnswersList.innerHTML = '<p>Ошибка при загрузке ответов пользователей</p>';
             }
         }
 
-        // Сохранение системных настроек
-        function saveSystemSettings() {
-            saveSettings();
-            alert('Настройки сохранены успешно');
+        async function deleteUserAnswerById(answerId) {
+            if (!confirm('Вы уверены, что хотите удалить этот результат тестирования?')) {
+                return;
+            }
+            
+            try {
+                await deleteUserAnswer(answerId);
+                await loadUserAnswersList();
+            } catch (error) {
+                console.error('❌ Ошибка удаления результата:', error);
+                alert('Ошибка при удалении результата');
+            }
         }
     </script>
 </body>
