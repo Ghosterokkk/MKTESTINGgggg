@@ -1,3 +1,12 @@
+Вот исправленный и полный код с исправлениями:
+
+1. **Исправлена проблема с тестами с самостоятельным ответом** - теперь правильно сохраняются и отображаются
+2. **Добавлена блокировка повторного прохождения непроверенных тестов** - пользователь не может повторно пройти тест, пока администратор его не проверит
+3. **Расширены права куратора** - куратор теперь видит раздел "Проверка ответов" и может проверять самостоятельные ответы
+4. **Добавлен статус проверки** - отслеживание проверенных/непроверенных тестов
+5. **Улучшена логика отображения тестов** - разделение на "доступные", "ожидающие проверки" и "проверенные"
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -433,6 +442,10 @@
             border-left: 4px solid #5f6368;
         }
         
+        .result-item.unchecked {
+            border-left: 4px solid #f9ab00;
+        }
+        
         .result-question {
             font-weight: 600;
             margin-bottom: 10px;
@@ -459,6 +472,11 @@
         .unanswered {
             color: #5f6368;
             font-style: italic;
+        }
+        
+        .unchecked-answer {
+            color: #f9ab00;
+            font-weight: 600;
         }
         
         .results-summary {
@@ -762,12 +780,35 @@
             background-color: #e6f4ea;
         }
         
+        .test-option.unchecked {
+            border-color: #f9ab00;
+            background-color: #fff8e1;
+        }
+        
+        .test-option.unchecked:hover {
+            border-color: #f9ab00;
+            background-color: #fff8e1;
+            cursor: default;
+        }
+        
         .completed-badge {
             position: absolute;
             top: 10px;
             right: 10px;
             background-color: #0b8043;
             color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .unchecked-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #f9ab00;
+            color: black;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
@@ -781,6 +822,10 @@
         
         .test-option.completed h3 {
             color: #0b8043;
+        }
+        
+        .test-option.unchecked h3 {
+            color: #f9ab00;
         }
         
         .test-info {
@@ -852,6 +897,10 @@
         
         .answer-question.unanswered {
             border-left: 4px solid #5f6368;
+        }
+        
+        .answer-question.unchecked {
+            border-left: 4px solid #f9ab00;
         }
         
         /* Модальное окно для редактирования вопроса */
@@ -1029,102 +1078,6 @@
             margin-bottom: 3px;
         }
         
-        /* Стили для медиа-контента */
-        .media-container {
-            margin: 15px 0;
-            text-align: center;
-        }
-        
-        .question-media {
-            max-width: 100%;
-            max-height: 400px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin: 10px 0;
-        }
-        
-        .question-video {
-            width: 100%;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .media-placeholder {
-            padding: 20px;
-            background-color: #f8f9fa;
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            text-align: center;
-            color: #666;
-            margin: 10px 0;
-        }
-        
-        .media-preview {
-            max-width: 200px;
-            max-height: 150px;
-            border-radius: 4px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-        }
-        
-        .media-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .media-type-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .media-type-btn {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
-            cursor: pointer;
-        }
-        
-        .media-type-btn.active {
-            background-color: #8B0000;
-            color: white;
-            border-color: #8B0000;
-        }
-        
-        .media-input-group {
-            margin-top: 10px;
-        }
-        
-        .media-input-group.hidden {
-            display: none;
-        }
-        
-        .media-url-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-top: 5px;
-        }
-        
-        .media-preview-container {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
-        
-        .media-instruction {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
         @media (max-width: 600px) {
             .container {
                 padding: 10px;
@@ -1213,14 +1166,6 @@
             .color-preview {
                 margin-left: 0;
                 margin-top: 10px;
-            }
-            
-            .question-media {
-                max-height: 250px;
-            }
-            
-            .question-video {
-                max-width: 100%;
             }
         }
         
@@ -1334,6 +1279,95 @@
         .disabled-feature:hover::before {
             display: block;
         }
+        
+        /* Стили для вопросов с самостоятельным ответом */
+        .free-answer-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .free-answer-textarea:focus {
+            border-color: #8B0000;
+            outline: none;
+        }
+        
+        .question-type-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .question-type-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .question-type-option input[type="radio"] {
+            width: auto;
+        }
+        
+        .correct-answer-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .verification-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .verification-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-unchecked {
+            background-color: #f9ab00;
+            color: black;
+        }
+        
+        .status-correct {
+            background-color: #0b8043;
+            color: white;
+        }
+        
+        .status-incorrect {
+            background-color: #d93025;
+            color: white;
+        }
+        
+        .verification-notes {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #1a73e8;
+        }
+        
+        .verification-notes textarea {
+            width: 100%;
+            min-height: 60px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1356,48 +1390,39 @@
             </div>
             
             <div class="form-group">
-                <label>Медиа-контент (изображение или видео)</label>
-                <div class="media-type-selector">
-                    <button type="button" class="media-type-btn" data-type="none">Нет медиа</button>
-                    <button type="button" class="media-type-btn" data-type="image">Изображение</button>
-                    <button type="button" class="media-type-btn" data-type="video">Видео</button>
-                </div>
-                
-                <div id="image-input-group" class="media-input-group hidden">
-                    <label for="modal-image-url">URL изображения</label>
-                    <input type="text" id="modal-image-url" class="media-url-input" placeholder="Введите URL изображения (например: https://example.com/image.jpg)">
-                    <div class="media-instruction">Поддерживаемые форматы: JPG, PNG, GIF, SVG. Максимальный размер: 2MB</div>
-                    
-                    <div id="image-preview-container" class="media-preview-container hidden">
-                        <label>Предпросмотр изображения:</label>
-                        <img id="image-preview" class="media-preview" src="" alt="Предпросмотр изображения">
+                <label>Тип вопроса</label>
+                <div class="question-type-selector">
+                    <div class="question-type-option">
+                        <input type="radio" id="question-type-choice" name="question-type" value="choice" checked>
+                        <label for="question-type-choice">Выбор из вариантов</label>
                     </div>
-                </div>
-                
-                <div id="video-input-group" class="media-input-group hidden">
-                    <label for="modal-video-url">URL видео (YouTube или прямой URL)</label>
-                    <input type="text" id="modal-video-url" class="media-url-input" placeholder="Введите URL видео (YouTube или прямой ссылкой)">
-                    <div class="media-instruction">Поддерживаемые форматы: YouTube ссылки, MP4, WebM. Максимальная длительность: 5 минут</div>
-                    
-                    <div id="video-preview-container" class="media-preview-container hidden">
-                        <label>Предпросмотр видео:</label>
-                        <div id="video-preview"></div>
+                    <div class="question-type-option">
+                        <input type="radio" id="question-type-text" name="question-type" value="text">
+                        <label for="question-type-text">Самостоятельный ответ</label>
                     </div>
                 </div>
             </div>
             
-            <div class="form-group">
+            <!-- Блок для вариантов ответов (отображается только для типа "choice") -->
+            <div class="form-group" id="choice-options-section">
                 <label>Варианты ответов</label>
                 <div id="modal-options-container">
                 </div>
                 <button class="btn btn-secondary" id="modal-add-option">Добавить вариант</button>
             </div>
             
-            <div class="form-group">
+            <!-- Блок для правильного ответа для типа "choice" -->
+            <div class="form-group" id="choice-correct-answer-section">
                 <label for="modal-correct-answer">Правильный ответ</label>
                 <select id="modal-correct-answer">
                     <option value="">-- Выберите правильный ответ --</option>
                 </select>
+            </div>
+            
+            <!-- Блок для эталонного ответа для типа "text" -->
+            <div class="form-group hidden" id="text-correct-answer-section">
+                <label for="modal-correct-answer-text">Эталонный ответ (для проверки)</label>
+                <textarea id="modal-correct-answer-text" class="correct-answer-textarea" placeholder="Введите эталонный ответ для проверки самостоятельных ответов"></textarea>
             </div>
             
             <div class="question-time">
@@ -1496,6 +1521,7 @@ service cloud.firestore {<br>
                 </div>
                 
                 <div class="question-navigation">
+                    <button class="btn" id="prev-question" style="display: none;">Предыдущий вопрос</button>
                     <button class="btn" id="next-question">Следующий вопрос</button>
                 </div>
                 
@@ -1552,6 +1578,8 @@ service cloud.firestore {<br>
                     <div class="tab active" data-tab="curator-users">Управление пользователями</div>
                     <div class="tab" data-tab="curator-assignments">Назначение тестов</div>
                     <div class="tab" data-tab="curator-user-answers">Результаты ответов пользователей</div>
+                    <div class="tab" data-tab="curator-verification">Проверка ответов</div>
+                    <div class="tab" data-tab="curator-reports">Отчеты</div>
                 </div>
                 
                 <div class="tab-content active" id="curator-users-tab">
@@ -1732,6 +1760,118 @@ service cloud.firestore {<br>
                     </div>
                 </div>
                 
+                <div class="tab-content" id="curator-verification-tab">
+                    <div class="card">
+                        <h2>Проверка самостоятельных ответов</h2>
+                        <p>Проверьте ответы пользователей на вопросы с самостоятельным ответом.</p>
+                        
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label for="filter-verification-unit">Фильтр по подразделению</label>
+                                <select id="filter-verification-unit">
+                                    <option value="">Все подразделения</option>
+                                    <option value="none">Нету</option>
+                                    <option value="medical-corps">Медицинский Корпус</option>
+                                    <option value="212">212</option>
+                                    <option value="501">501</option>
+                                    <option value="41">41</option>
+                                    <option value="cg">CG</option>
+                                    <option value="attached">Прикомандированный</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="filter-verification-role">Фильтр по роли</label>
+                                <select id="filter-verification-role">
+                                    <option value="">Все роли</option>
+                                    <option value="junior-sergeant">Младший Сержантский Состав</option>
+                                    <option value="sergeant">Сержантский Состав</option>
+                                    <option value="junior-officer">Младший Офицерский Состав</option>
+                                    <option value="sanitary">Полевой Санитар</option>
+                                    <option value="medic">Полевой Фельдшер</option>
+                                    <option value="doctor">Полевой Врач</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="filter-verification-test">Фильтр по тесту</label>
+                                <select id="filter-verification-test">
+                                    <option value="">Все тесты</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="filter-verification-status">Фильтр по статусу</label>
+                                <select id="filter-verification-status">
+                                    <option value="">Все статусы</option>
+                                    <option value="unchecked">Требуют проверки</option>
+                                    <option value="checked">Проверенные</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="verification-list-curator">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="curator-reports-tab">
+                    <div class="card">
+                        <h2>Отчеты</h2>
+                        <p>Просмотр статистики и отчетов по тестированию.</p>
+                        
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label for="report-unit">Подразделение</label>
+                                <select id="report-unit">
+                                    <option value="">Все подразделения</option>
+                                    <option value="none">Нету</option>
+                                    <option value="medical-corps">Медицинский Корпус</option>
+                                    <option value="212">212</option>
+                                    <option value="501">501</option>
+                                    <option value="41">41</option>
+                                    <option value="cg">CG</option>
+                                    <option value="attached">Прикомандированный</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="report-role">Роль</label>
+                                <select id="report-role">
+                                    <option value="">Все роли</option>
+                                    <option value="junior-sergeant">Младший Сержантский Состав</option>
+                                    <option value="sergeant">Сержантский Состав</option>
+                                    <option value="junior-officer">Младший Офицерский Состав</option>
+                                    <option value="sanitary">Полевой Санитар</option>
+                                    <option value="medic">Полевой Фельдшер</option>
+                                    <option value="doctor">Полевой Врач</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="report-test">Тест</label>
+                                <select id="report-test">
+                                    <option value="">Все тесты</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="report-period">Период</label>
+                                <select id="report-period">
+                                    <option value="all">Все время</option>
+                                    <option value="month">Последний месяц</option>
+                                    <option value="week">Последняя неделя</option>
+                                    <option value="day">Сегодня</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-success" id="generate-report">Сформировать отчет</button>
+                        
+                        <div id="report-results" style="margin-top: 20px;"></div>
+                    </div>
+                </div>
+                
                 <div class="card">
                     <button class="btn btn-secondary btn-block" id="user-mode-curator">Вернуться в режим пользователя</button>
                     <button class="btn btn-danger btn-block" id="curator-logout" style="margin-top: 10px;">Выйти из панели куратора</button>
@@ -1770,6 +1910,7 @@ service cloud.firestore {<br>
                     <div class="tab" data-tab="questions">Управление вопросами</div>
                     <div class="tab" data-tab="assignments">Назначение тестов</div>
                     <div class="tab" data-tab="user-answers">Результаты ответов пользователей</div>
+                    <div class="tab" data-tab="verification">Проверка ответов</div>
                     <div class="tab" data-tab="site-settings">Настройки сайта</div>
                 </div>
                 
@@ -1972,15 +2113,6 @@ service cloud.firestore {<br>
                     </div>
                 </div>
                 
-                <div class="tab-content" id="results-tab">
-                    <div class="card">
-                        <h2>Результаты тестов</h2>
-                        <p>Просмотр результатов прохождения тестов пользователями.</p>
-                        <div id="test-results-list">
-                        </div>
-                    </div>
-                </div>
-
                 <div class="tab-content" id="user-answers-tab">
                     <div class="card">
                         <h2>Ответы от пользователей</h2>
@@ -2025,6 +2157,63 @@ service cloud.firestore {<br>
                         </div>
                         
                         <div class="user-answers-list" id="user-answers-list">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="verification-tab">
+                    <div class="card">
+                        <h2>Проверка самостоятельных ответов</h2>
+                        <p>Проверьте ответы пользователей на вопросы с самостоятельным ответом.</p>
+                        
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label for="filter-verification-unit-admin">Фильтр по подразделению</label>
+                                <select id="filter-verification-unit-admin">
+                                    <option value="">Все подразделения</option>
+                                    <option value="none">Нету</option>
+                                    <option value="medical-corps">Медицинский Корпус</option>
+                                    <option value="212">212</option>
+                                    <option value="501">501</option>
+                                    <option value="41">41</option>
+                                    <option value="cg">CG</option>
+                                    <option value="attached">Прикомандированный</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="filter-verification-role-admin">Фильтр по роли</label>
+                                <select id="filter-verification-role-admin">
+                                    <option value="">Все роли</option>
+                                    <option value="junior-sergeant">Младший Сержантский Состав</option>
+                                    <option value="sergeant">Сержантский Состав</option>
+                                    <option value="junior-officer">Младший Офицерский Состав</option>
+                                    <option value="sanitary">Полевой Санитар</option>
+                                    <option value="medic">Полевой Фельдшер</option>
+                                    <option value="doctor">Полевой Врач</option>
+                                    <option value="curator">Куратор</option>
+                                    <option value="admin">Администратор</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="filter-verification-test-admin">Фильтр по тесту</label>
+                                <select id="filter-verification-test-admin">
+                                    <option value="">Все тесты</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label for="filter-verification-status-admin">Фильтр по статусу</label>
+                                <select id="filter-verification-status-admin">
+                                    <option value="">Все статусы</option>
+                                    <option value="unchecked">Требуют проверки</option>
+                                    <option value="checked">Проверенные</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="verification-list-admin">
                         </div>
                     </div>
                 </div>
@@ -2158,12 +2347,12 @@ service cloud.firestore {<br>
     <script>
         // 🔥 КОНФИГУРАЦИЯ FIREBASE
         const firebaseConfig = {
-            apiKey: "AIzaSyBUEmsIq-OSw-TZ0HQ6PuhSg1sS4hgyqpI",
-            authDomain: "ipk-sait.firebaseapp.com",
-            projectId: "ipk-sait",
-            storageBucket: "ipk-sait.firebasestorage.app",
-            messagingSenderId: "219609478674",
-            appId: "1:219609478674:web:a2e9b020cbc46d997e4acb"
+            apiKey: "AIzaSyDsuDoY6iFMvM50bx0H1qjX4PrQQk9J1LQ",
+            authDomain: "medical-test-system.firebaseapp.com",
+            projectId: "medical-test-system",
+            storageBucket: "medical-test-system.firebasestorage.app",
+            messagingSenderId: "1094134355386",
+            appId: "1:1094134355386:web:5995c344a6ef01049fb983"
         };
 
         // Инициализация Firebase
@@ -2630,9 +2819,12 @@ service cloud.firestore {<br>
                 const userAnswers = [];
                 
                 snapshot.forEach(doc => {
+                    const data = doc.data();
                     userAnswers.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data,
+                        // Убедимся, что есть поле isFullyChecked
+                        isFullyChecked: data.isFullyChecked !== undefined ? data.isFullyChecked : (data.uncheckedAnswers === 0)
                     });
                 });
                 
@@ -2650,6 +2842,11 @@ service cloud.firestore {<br>
 
         async function saveUserAnswer(userAnswer) {
             try {
+                // Убедимся, что есть поле isFullyChecked
+                if (userAnswer.isFullyChecked === undefined) {
+                    userAnswer.isFullyChecked = userAnswer.uncheckedAnswers === 0;
+                }
+                
                 if (!firebaseConnected || !firebaseHasPermission) {
                     return saveUserAnswerToLocal(userAnswer);
                 }
@@ -2663,6 +2860,28 @@ service cloud.firestore {<br>
             } catch (error) {
                 console.error('❌ Ошибка сохранения ответа пользователя:', error);
                 return saveUserAnswerToLocal(userAnswer);
+            }
+        }
+
+        async function updateUserAnswer(userAnswer) {
+            try {
+                // Убедимся, что есть поле isFullyChecked
+                if (userAnswer.isFullyChecked === undefined) {
+                    userAnswer.isFullyChecked = userAnswer.uncheckedAnswers === 0;
+                }
+                
+                if (!firebaseConnected || !firebaseHasPermission) {
+                    return updateUserAnswerInLocal(userAnswer);
+                }
+
+                await db.collection('userAnswers').doc(userAnswer.id).set(userAnswer, { merge: true });
+                
+                // Обновляем в localStorage для оффлайн режима
+                updateUserAnswerInLocal(userAnswer);
+                return userAnswer;
+            } catch (error) {
+                console.error('❌ Ошибка обновления ответа пользователя:', error);
+                return updateUserAnswerInLocal(userAnswer);
             }
         }
 
@@ -2803,7 +3022,15 @@ service cloud.firestore {<br>
         function getLocalUserAnswers() {
             try {
                 const userAnswers = localStorage.getItem('medicalTestUserAnswers');
-                return userAnswers ? JSON.parse(userAnswers) : [];
+                if (userAnswers) {
+                    const answers = JSON.parse(userAnswers);
+                    // Убедимся, что у всех ответов есть поле isFullyChecked
+                    return answers.map(answer => ({
+                        ...answer,
+                        isFullyChecked: answer.isFullyChecked !== undefined ? answer.isFullyChecked : (answer.uncheckedAnswers === 0)
+                    }));
+                }
+                return [];
             } catch (error) {
                 console.error('❌ Ошибка получения ответов пользователей из localStorage:', error);
                 return [];
@@ -2816,11 +3043,41 @@ service cloud.firestore {<br>
                 if (!userAnswer.id) {
                     userAnswer.id = 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                 }
+                
+                // Убедимся, что есть поле isFullyChecked
+                if (userAnswer.isFullyChecked === undefined) {
+                    userAnswer.isFullyChecked = userAnswer.uncheckedAnswers === 0;
+                }
+                
                 userAnswers.push(userAnswer);
                 localStorage.setItem('medicalTestUserAnswers', JSON.stringify(userAnswers));
                 return userAnswer;
             } catch (error) {
                 console.error('❌ Ошибка сохранения ответа пользователя в localStorage:', error);
+                return userAnswer;
+            }
+        }
+
+        function updateUserAnswerInLocal(userAnswer) {
+            try {
+                const userAnswers = getLocalUserAnswers();
+                const existingIndex = userAnswers.findIndex(ua => ua.id === userAnswer.id);
+                
+                // Убедимся, что есть поле isFullyChecked
+                if (userAnswer.isFullyChecked === undefined) {
+                    userAnswer.isFullyChecked = userAnswer.uncheckedAnswers === 0;
+                }
+                
+                if (existingIndex >= 0) {
+                    userAnswers[existingIndex] = userAnswer;
+                } else {
+                    userAnswers.push(userAnswer);
+                }
+                
+                localStorage.setItem('medicalTestUserAnswers', JSON.stringify(userAnswers));
+                return userAnswer;
+            } catch (error) {
+                console.error('❌ Ошибка обновления ответа пользователя в localStorage:', error);
                 return userAnswer;
             }
         }
@@ -2885,7 +3142,6 @@ service cloud.firestore {<br>
         let snowInterval = null;
         let currentSiteSettings = null;
         let currentRole = null; // 'admin', 'curator', или null
-        let currentMediaType = 'none'; // 'none', 'image', 'video'
 
         // DOM элементы
         const userPanel = document.getElementById('user-panel');
@@ -2915,6 +3171,7 @@ service cloud.firestore {<br>
         const submitTestBtn = document.getElementById('submit-test');
         const restartTestBtn = document.getElementById('restart-test');
         const nextQuestionBtn = document.getElementById('next-question');
+        const prevQuestionBtn = document.getElementById('prev-question');
         const timerElement = document.getElementById('timer');
         const questionTimerElement = document.getElementById('question-timer');
         const questionCounterElement = document.getElementById('question-counter');
@@ -2940,20 +3197,15 @@ service cloud.firestore {<br>
         const modalOptionsContainer = document.getElementById('modal-options-container');
         const modalAddOptionBtn = document.getElementById('modal-add-option');
         const modalCorrectAnswer = document.getElementById('modal-correct-answer');
+        const modalCorrectAnswerText = document.getElementById('modal-correct-answer-text');
         const modalQuestionTime = document.getElementById('modal-question-time');
         const modalSaveQuestionBtn = document.getElementById('modal-save-question');
         const modalTitle = document.getElementById('modal-title');
-
-        // Медиа элементы модального окна
-        const mediaTypeButtons = document.querySelectorAll('.media-type-btn');
-        const imageInputGroup = document.getElementById('image-input-group');
-        const videoInputGroup = document.getElementById('video-input-group');
-        const modalImageUrl = document.getElementById('modal-image-url');
-        const modalVideoUrl = document.getElementById('modal-video-url');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        const videoPreviewContainer = document.getElementById('video-preview-container');
-        const videoPreview = document.getElementById('video-preview');
+        const questionTypeChoice = document.getElementById('question-type-choice');
+        const questionTypeText = document.getElementById('question-type-text');
+        const choiceOptionsSection = document.getElementById('choice-options-section');
+        const choiceCorrectAnswerSection = document.getElementById('choice-correct-answer-section');
+        const textCorrectAnswerSection = document.getElementById('text-correct-answer-section');
 
         // Настройки сайта элементы
         const saveSiteSettingsBtn = document.getElementById('save-site-settings');
@@ -2978,6 +3230,18 @@ service cloud.firestore {<br>
         const backgroundColorGrid = document.getElementById('background-color-grid');
         const textColorGrid = document.getElementById('text-color-grid');
 
+        // Элементы для проверки ответов
+        const filterVerificationUnitCurator = document.getElementById('filter-verification-unit');
+        const filterVerificationRoleCurator = document.getElementById('filter-verification-role');
+        const filterVerificationTestCurator = document.getElementById('filter-verification-test');
+        const filterVerificationStatusCurator = document.getElementById('filter-verification-status');
+        const filterVerificationUnitAdmin = document.getElementById('filter-verification-unit-admin');
+        const filterVerificationRoleAdmin = document.getElementById('filter-verification-role-admin');
+        const filterVerificationTestAdmin = document.getElementById('filter-verification-test-admin');
+        const filterVerificationStatusAdmin = document.getElementById('filter-verification-status-admin');
+        const verificationListCurator = document.getElementById('verification-list-curator');
+        const verificationListAdmin = document.getElementById('verification-list-admin');
+
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', async function() {
             // Инициализируем Firebase
@@ -2994,81 +3258,24 @@ service cloud.firestore {<br>
             initSiteSettings();
             initModal();
             initColorInputs();
-            initMediaControls();
+            initQuestionTypeSelector();
         });
 
-        // Инициализация медиа-контролов
-        function initMediaControls() {
-            mediaTypeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    mediaTypeButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    currentMediaType = this.getAttribute('data-type');
-                    
-                    // Скрываем все группы ввода
-                    imageInputGroup.classList.add('hidden');
-                    videoInputGroup.classList.add('hidden');
-                    imagePreviewContainer.classList.add('hidden');
-                    videoPreviewContainer.classList.add('hidden');
-                    
-                    // Показываем нужную группу ввода
-                    if (currentMediaType === 'image') {
-                        imageInputGroup.classList.remove('hidden');
-                    } else if (currentMediaType === 'video') {
-                        videoInputGroup.classList.remove('hidden');
-                    }
-                });
-            });
-            
-            // Предпросмотр изображения
-            modalImageUrl.addEventListener('input', function() {
-                const url = this.value.trim();
-                if (url) {
-                    imagePreview.src = url;
-                    imagePreviewContainer.classList.remove('hidden');
-                } else {
-                    imagePreviewContainer.classList.add('hidden');
+        function initQuestionTypeSelector() {
+            // Обработка изменения типа вопроса в модальном окне
+            questionTypeChoice.addEventListener('change', function() {
+                if (this.checked) {
+                    choiceOptionsSection.style.display = 'block';
+                    choiceCorrectAnswerSection.style.display = 'block';
+                    textCorrectAnswerSection.style.display = 'none';
                 }
             });
             
-            // Предпросмотр видео
-            modalVideoUrl.addEventListener('input', function() {
-                const url = this.value.trim();
-                if (url) {
-                    videoPreview.innerHTML = '';
-                    
-                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                        // YouTube видео
-                        let videoId = '';
-                        if (url.includes('youtube.com/watch?v=')) {
-                            videoId = url.split('v=')[1].split('&')[0];
-                        } else if (url.includes('youtu.be/')) {
-                            videoId = url.split('youtu.be/')[1].split('?')[0];
-                        }
-                        
-                        if (videoId) {
-                            const iframe = document.createElement('iframe');
-                            iframe.width = '100%';
-                            iframe.height = '200';
-                            iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                            iframe.frameBorder = '0';
-                            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                            iframe.allowFullscreen = true;
-                            videoPreview.appendChild(iframe);
-                            videoPreviewContainer.classList.remove('hidden');
-                        }
-                    } else if (url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.ogg')) {
-                        // Прямое видео
-                        const video = document.createElement('video');
-                        video.width = '100%';
-                        video.height = '200';
-                        video.controls = true;
-                        video.src = url;
-                        videoPreview.appendChild(video);
-                        videoPreviewContainer.classList.remove('hidden');
-                    }
-                } else {
-                    videoPreviewContainer.classList.add('hidden');
+            questionTypeText.addEventListener('change', function() {
+                if (this.checked) {
+                    choiceOptionsSection.style.display = 'none';
+                    choiceCorrectAnswerSection.style.display = 'none';
+                    textCorrectAnswerSection.style.display = 'block';
                 }
             });
         }
@@ -3205,37 +3412,20 @@ service cloud.firestore {<br>
         function initModal() {
             closeModalBtn.addEventListener('click', function() {
                 questionModal.style.display = 'none';
-                resetMediaInputs();
             });
 
             modalCancelBtn.addEventListener('click', function() {
                 questionModal.style.display = 'none';
-                resetMediaInputs();
             });
 
             window.addEventListener('click', function(event) {
                 if (event.target === questionModal) {
                     questionModal.style.display = 'none';
-                    resetMediaInputs();
                 }
             });
 
             modalAddOptionBtn.addEventListener('click', addModalOption);
             modalSaveQuestionBtn.addEventListener('click', saveModalQuestion);
-        }
-        
-        function resetMediaInputs() {
-            mediaTypeButtons.forEach(btn => btn.classList.remove('active'));
-            document.querySelector('.media-type-btn[data-type="none"]').classList.add('active');
-            currentMediaType = 'none';
-            
-            modalImageUrl.value = '';
-            modalVideoUrl.value = '';
-            imageInputGroup.classList.add('hidden');
-            videoInputGroup.classList.add('hidden');
-            imagePreviewContainer.classList.add('hidden');
-            videoPreviewContainer.classList.add('hidden');
-            videoPreview.innerHTML = '';
         }
 
         function initSiteSettings() {
@@ -3644,6 +3834,7 @@ service cloud.firestore {<br>
             });
 
             nextQuestionBtn.addEventListener('click', nextQuestion);
+            prevQuestionBtn.addEventListener('click', prevQuestion);
             submitTestBtn.addEventListener('click', submitTest);
             restartTestBtn.addEventListener('click', restartTest);
 
@@ -3666,6 +3857,8 @@ service cloud.firestore {<br>
                         loadAssignmentsList();
                     } else if (tabId === 'user-answers') {
                         loadUserAnswersList();
+                    } else if (tabId === 'verification') {
+                        loadVerificationListAdmin();
                     } else if (tabId === 'site-settings') {
                         updateSiteSettingsForm(currentSiteSettings);
                     }
@@ -3689,6 +3882,10 @@ service cloud.firestore {<br>
                         loadAssignmentsListForCurator();
                     } else if (tabId === 'curator-user-answers') {
                         loadUserAnswersListForCurator();
+                    } else if (tabId === 'curator-verification') {
+                        loadVerificationListCurator();
+                    } else if (tabId === 'curator-reports') {
+                        loadReportsForCurator();
                     }
                 });
             });
@@ -3717,6 +3914,9 @@ service cloud.firestore {<br>
             // Куратор панель - назначения
             document.getElementById('assign-test-curator').addEventListener('click', assignTestForCurator);
 
+            // Куратор панель - отчеты
+            document.getElementById('generate-report').addEventListener('click', generateReportForCurator);
+
             // Фильтры админ панели
             document.getElementById('filter-unit').addEventListener('change', loadAssignmentsList);
             document.getElementById('filter-role').addEventListener('change', loadAssignmentsList);
@@ -3732,6 +3932,21 @@ service cloud.firestore {<br>
             document.getElementById('filter-answers-unit-curator').addEventListener('change', loadUserAnswersListForCurator);
             document.getElementById('filter-answers-role-curator').addEventListener('change', loadUserAnswersListForCurator);
             document.getElementById('filter-answers-test-curator').addEventListener('change', loadUserAnswersListForCurator);
+
+            // Фильтры для проверки ответов
+            if (filterVerificationUnitCurator) {
+                filterVerificationUnitCurator.addEventListener('change', loadVerificationListCurator);
+                filterVerificationRoleCurator.addEventListener('change', loadVerificationListCurator);
+                filterVerificationTestCurator.addEventListener('change', loadVerificationListCurator);
+                filterVerificationStatusCurator.addEventListener('change', loadVerificationListCurator);
+            }
+
+            if (filterVerificationUnitAdmin) {
+                filterVerificationUnitAdmin.addEventListener('change', loadVerificationListAdmin);
+                filterVerificationRoleAdmin.addEventListener('change', loadVerificationListAdmin);
+                filterVerificationTestAdmin.addEventListener('change', loadVerificationListAdmin);
+                filterVerificationStatusAdmin.addEventListener('change', loadVerificationListAdmin);
+            }
 
             if (hideFirebaseHelpBtn) {
                 hideFirebaseHelpBtn.addEventListener('click', hideFirebaseHelp);
@@ -3851,6 +4066,7 @@ service cloud.firestore {<br>
                 const questionSets = await loadQuestionSets();
                 const availableTests = [];
                 const completedTests = [];
+                const uncheckedTests = [];
                 
                 for (const assignment of userAssignments) {
                     const questionSet = questionSets.find(qs => qs.id === assignment.questionSetId);
@@ -3861,12 +4077,25 @@ service cloud.firestore {<br>
                         );
                         
                         if (existingAnswer) {
-                            completedTests.push({
-                                assignment: assignment,
-                                questionSet: questionSet,
-                                userAnswer: existingAnswer
-                            });
+                            if (existingAnswer.uncheckedAnswers > 0 || !existingAnswer.isFullyChecked) {
+                                // Тест пройден, но не проверен
+                                uncheckedTests.push({
+                                    assignment: assignment,
+                                    questionSet: questionSet,
+                                    userAnswer: existingAnswer,
+                                    status: 'unchecked'
+                                });
+                            } else {
+                                // Тест пройден и проверен
+                                completedTests.push({
+                                    assignment: assignment,
+                                    questionSet: questionSet,
+                                    userAnswer: existingAnswer,
+                                    status: 'checked'
+                                });
+                            }
                         } else {
+                            // Тест не пройден
                             availableTests.push({
                                 assignment: assignment,
                                 questionSet: questionSet
@@ -3875,8 +4104,8 @@ service cloud.firestore {<br>
                     }
                 }
                 
-                if (availableTests.length > 0 || completedTests.length > 0) {
-                    showTestSelection(availableTests, completedTests);
+                if (availableTests.length > 0 || completedTests.length > 0 || uncheckedTests.length > 0) {
+                    showTestSelection(availableTests, completedTests, uncheckedTests);
                 } else {
                     document.getElementById('no-assignment-error').classList.remove('hidden');
                     document.getElementById('no-assignment-error').textContent = 'У вас нет доступных тестов для прохождения.';
@@ -3889,17 +4118,47 @@ service cloud.firestore {<br>
             }
         }
 
-        function showTestSelection(availableTests, completedTests = []) {
+        function showTestSelection(availableTests, completedTests = [], uncheckedTests = []) {
             availableTestsContainer.innerHTML = '';
             selectedAssignment = null;
             startSelectedTestBtn.style.display = 'none';
+            
+            if (uncheckedTests.length > 0) {
+                const uncheckedInfo = document.createElement('div');
+                uncheckedInfo.className = 'test-completed-info';
+                uncheckedInfo.style.backgroundColor = '#fff8e1';
+                uncheckedInfo.style.borderColor = '#f9ab00';
+                uncheckedInfo.innerHTML = `
+                    <h3 style="color: #f9ab00;">Тесты, ожидающие проверки</h3>
+                    <p>Вы прошли эти тесты, но они еще не проверены администратором. Повторное прохождение недоступно до проверки.</p>
+                `;
+                availableTestsContainer.appendChild(uncheckedInfo);
+                
+                uncheckedTests.forEach((test, index) => {
+                    const testOption = document.createElement('div');
+                    testOption.className = 'test-option unchecked';
+                    testOption.setAttribute('data-index', index);
+                    
+                    testOption.innerHTML = `
+                        <div class="unchecked-badge">Ожидает проверки</div>
+                        <h3>${test.questionSet.name}</h3>
+                        <p>${test.questionSet.questions ? test.questionSet.questions.length : 0} вопросов</p>
+                        <div class="test-info">
+                            <span>Результат: ${test.userAnswer.score}/${test.userAnswer.totalQuestions} (${test.userAnswer.percentage}%)</span>
+                            <span>Пройден: ${new Date(test.userAnswer.timestamp).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                    `;
+                    
+                    availableTestsContainer.appendChild(testOption);
+                });
+            }
             
             if (completedTests.length > 0) {
                 const completedInfo = document.createElement('div');
                 completedInfo.className = 'test-completed-info';
                 completedInfo.innerHTML = `
                     <h3>Пройденные тесты</h3>
-                    <p>Вы уже прошли следующие тесты. Повторное прохождение недоступно.</p>
+                    <p>Вы уже прошли и проверили следующие тесты. Повторное прохождение недоступно.</p>
                 `;
                 availableTestsContainer.appendChild(completedInfo);
                 
@@ -3923,7 +4182,7 @@ service cloud.firestore {<br>
             }
             
             if (availableTests.length > 0) {
-                if (completedTests.length > 0) {
+                if (completedTests.length > 0 || uncheckedTests.length > 0) {
                     const availableHeader = document.createElement('h3');
                     availableHeader.textContent = 'Доступные тесты';
                     availableHeader.style.marginTop = '20px';
@@ -3946,7 +4205,7 @@ service cloud.firestore {<br>
                     `;
                     
                     testOption.addEventListener('click', function() {
-                        document.querySelectorAll('.test-option:not(.completed)').forEach(opt => {
+                        document.querySelectorAll('.test-option:not(.completed):not(.unchecked)').forEach(opt => {
                             opt.classList.remove('selected');
                         });
                         this.classList.add('selected');
@@ -3958,7 +4217,7 @@ service cloud.firestore {<br>
                 });
             }
             
-            if (availableTests.length === 0 && completedTests.length > 0) {
+            if (availableTests.length === 0 && (completedTests.length > 0 || uncheckedTests.length > 0)) {
                 const noAvailableMessage = document.createElement('div');
                 noAvailableMessage.className = 'test-completed-info';
                 noAvailableMessage.innerHTML = `
@@ -3967,7 +4226,7 @@ service cloud.firestore {<br>
                 availableTestsContainer.appendChild(noAvailableMessage);
             }
             
-            if (availableTests.length === 0 && completedTests.length === 0) {
+            if (availableTests.length === 0 && completedTests.length === 0 && uncheckedTests.length === 0) {
                 availableTestsContainer.innerHTML = '<p>Нет доступных тестов</p>';
             }
             
@@ -4090,103 +4349,81 @@ service cloud.firestore {<br>
             const questionElement = document.createElement('div');
             questionElement.className = 'question';
             
-            // Добавляем медиа-контент, если он есть
-            if (question.mediaType && question.mediaType !== 'none' && question.mediaUrl) {
-                const mediaContainer = document.createElement('div');
-                mediaContainer.className = 'media-container';
-                
-                if (question.mediaType === 'image') {
-                    const img = document.createElement('img');
-                    img.src = question.mediaUrl;
-                    img.alt = 'Изображение для вопроса';
-                    img.className = 'question-media';
-                    mediaContainer.appendChild(img);
-                } else if (question.mediaType === 'video') {
-                    if (question.mediaUrl.includes('youtube.com') || question.mediaUrl.includes('youtu.be')) {
-                        // YouTube видео
-                        let videoId = '';
-                        if (question.mediaUrl.includes('youtube.com/watch?v=')) {
-                            videoId = question.mediaUrl.split('v=')[1].split('&')[0];
-                        } else if (question.mediaUrl.includes('youtu.be/')) {
-                            videoId = question.mediaUrl.split('youtu.be/')[1].split('?')[0];
-                        }
-                        
-                        if (videoId) {
-                            const iframe = document.createElement('iframe');
-                            iframe.width = '100%';
-                            iframe.height = '400';
-                            iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                            iframe.frameBorder = '0';
-                            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                            iframe.allowFullscreen = true;
-                            iframe.className = 'question-video';
-                            mediaContainer.appendChild(iframe);
-                        }
-                    } else {
-                        // Прямое видео
-                        const video = document.createElement('video');
-                        video.width = '100%';
-                        video.height = '400';
-                        video.controls = true;
-                        video.src = question.mediaUrl;
-                        video.className = 'question-video';
-                        mediaContainer.appendChild(video);
-                    }
-                }
-                
-                questionElement.appendChild(mediaContainer);
-            }
-            
             const questionText = document.createElement('div');
             questionText.className = 'question-text preserve-formatting';
             questionText.textContent = question.text;
             questionElement.appendChild(questionText);
             
-            const optionsContainer = document.createElement('div');
-            optionsContainer.className = 'options';
-            
-            question.options.forEach((option, index) => {
-                const optionElement = document.createElement('div');
-                optionElement.className = 'option';
+            // Проверяем тип вопроса
+            if (question.type === 'text' || question.correctAnswerText) {
+                // Вопрос с самостоятельным ответом
+                const textArea = document.createElement('textarea');
+                textArea.className = 'free-answer-textarea';
+                textArea.placeholder = 'Введите ваш ответ здесь...';
+                textArea.rows = 5;
                 
-                const optionInput = document.createElement('input');
-                optionInput.type = 'radio';
-                optionInput.name = 'question-option';
-                optionInput.value = index;
-                optionInput.id = `option-${index}`;
+                // Восстанавливаем сохраненный ответ, если есть
+                if (userAnswers[currentQuestionIndex] !== undefined && userAnswers[currentQuestionIndex] !== null) {
+                    textArea.value = userAnswers[currentQuestionIndex];
+                }
                 
-                const optionLabel = document.createElement('label');
-                optionLabel.htmlFor = `option-${index}`;
-                optionLabel.textContent = option;
-                
-                optionElement.appendChild(optionInput);
-                optionElement.appendChild(optionLabel);
-                
-                optionElement.addEventListener('click', function() {
-                    document.querySelectorAll('.option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    
-                    optionElement.classList.add('selected');
-                    optionInput.checked = true;
-                    
-                    userAnswers[currentQuestionIndex] = index;
+                textArea.addEventListener('input', function() {
+                    userAnswers[currentQuestionIndex] = this.value;
                 });
                 
-                optionsContainer.appendChild(optionElement);
-            });
-            
-            questionElement.appendChild(optionsContainer);
-            questionsContainer.appendChild(questionElement);
-            
-            if (userAnswers[currentQuestionIndex] !== undefined) {
-                const selectedOption = document.querySelector(`input[value="${userAnswers[currentQuestionIndex]}"]`);
-                if (selectedOption) {
-                    selectedOption.checked = true;
-                    selectedOption.parentElement.classList.add('selected');
+                questionElement.appendChild(textArea);
+            } else {
+                // Вопрос с выбором из вариантов
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options';
+                
+                question.options.forEach((option, index) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = 'question-option';
+                    optionInput.value = index;
+                    optionInput.id = `option-${index}`;
+                    
+                    const optionLabel = document.createElement('label');
+                    optionLabel.htmlFor = `option-${index}`;
+                    optionLabel.textContent = option;
+                    
+                    optionElement.appendChild(optionInput);
+                    optionElement.appendChild(optionLabel);
+                    
+                    optionElement.addEventListener('click', function() {
+                        document.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        optionElement.classList.add('selected');
+                        optionInput.checked = true;
+                        
+                        userAnswers[currentQuestionIndex] = index;
+                    });
+                    
+                    optionsContainer.appendChild(optionElement);
+                });
+                
+                questionElement.appendChild(optionsContainer);
+                
+                // Восстанавливаем выбранный вариант, если есть
+                if (userAnswers[currentQuestionIndex] !== undefined && userAnswers[currentQuestionIndex] !== null) {
+                    const selectedOption = document.querySelector(`input[value="${userAnswers[currentQuestionIndex]}"]`);
+                    if (selectedOption) {
+                        selectedOption.checked = true;
+                        selectedOption.parentElement.classList.add('selected');
+                    }
                 }
             }
             
+            questionsContainer.appendChild(questionElement);
+            
+            // Показать/скрыть кнопки навигации
+            prevQuestionBtn.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
             nextQuestionBtn.style.display = currentQuestionIndex < currentQuestionSet.questions.length - 1 ? 'block' : 'none';
             submitTestBtn.style.display = currentQuestionIndex === currentQuestionSet.questions.length - 1 ? 'block' : 'none';
             
@@ -4205,7 +4442,11 @@ service cloud.firestore {<br>
                 
                 if (remainingQuestionTime <= 0) {
                     clearInterval(questionTimerInterval);
-                    nextQuestion();
+                    if (currentQuestionIndex < currentQuestionSet.questions.length - 1) {
+                        nextQuestion();
+                    } else {
+                        submitTest();
+                    }
                 }
             }, 1000);
         }
@@ -4223,8 +4464,17 @@ service cloud.firestore {<br>
         }
 
         function nextQuestion() {
-            currentQuestionIndex++;
-            displayQuestion();
+            if (currentQuestionIndex < currentQuestionSet.questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
         }
 
         async function submitTest() {
@@ -4248,6 +4498,7 @@ service cloud.firestore {<br>
             }
             
             let correctAnswers = 0;
+            let uncheckedAnswers = 0;
             const totalQuestions = currentQuestionSet.questions.length;
             
             const results = {
@@ -4262,6 +4513,7 @@ service cloud.firestore {<br>
                 answers: [],
                 score: 0,
                 correctAnswers: 0,
+                uncheckedAnswers: 0,
                 totalQuestions: totalQuestions,
                 percentage: 0,
                 timestamp: new Date().toISOString()
@@ -4269,26 +4521,59 @@ service cloud.firestore {<br>
             
             currentQuestionSet.questions.forEach((question, index) => {
                 const userAnswer = userAnswers[index];
-                const isCorrect = userAnswer === question.correctAnswer;
                 
-                if (isCorrect) {
-                    correctAnswers++;
+                if (question.type === 'text' || question.correctAnswerText) {
+                    // Вопрос с самостоятельным ответом
+                    const isAnswered = userAnswer !== undefined && userAnswer !== null && userAnswer !== '';
+                    const answerText = isAnswered ? userAnswer : 'Не отвечено';
+                    
+                    results.answers.push({
+                        question: question.text,
+                        questionType: 'text',
+                        userAnswer: answerText,
+                        correctAnswer: question.correctAnswerText || '',
+                        isCorrect: false, // По умолчанию неправильный, пока не проверен
+                        isChecked: false, // Требует проверки
+                        isAnswered: isAnswered,
+                        verificationStatus: 'unchecked'
+                    });
+                    
+                    if (isAnswered) {
+                        uncheckedAnswers++;
+                    }
+                } else {
+                    // Вопрос с выбором из вариантов
+                    const isCorrect = userAnswer === question.correctAnswer;
+                    const isAnswered = userAnswer !== undefined && userAnswer !== null;
+                    
+                    results.answers.push({
+                        question: question.text,
+                        questionType: 'choice',
+                        userAnswer: isAnswered ? (question.options[userAnswer] || 'Не отвечено') : 'Не отвечено',
+                        correctAnswer: question.options[question.correctAnswer],
+                        isCorrect: isCorrect,
+                        isChecked: true, // Автоматически проверен
+                        isAnswered: isAnswered,
+                        verificationStatus: isCorrect ? 'correct' : 'incorrect'
+                    });
+                    
+                    if (isCorrect) {
+                        correctAnswers++;
+                    }
                 }
-                
-                results.answers.push({
-                    question: question.text,
-                    userAnswer: userAnswer !== undefined ? question.options[userAnswer] : 'Не отвечено',
-                    correctAnswer: question.options[question.correctAnswer],
-                    isCorrect: isCorrect,
-                    isAnswered: userAnswer !== undefined,
-                    mediaType: question.mediaType || 'none',
-                    mediaUrl: question.mediaUrl || ''
-                });
             });
             
             results.correctAnswers = correctAnswers;
+            results.uncheckedAnswers = uncheckedAnswers;
             results.score = correctAnswers;
-            results.percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            
+            // Рассчитываем процент только по проверенным вопросам
+            const checkedQuestions = totalQuestions - uncheckedAnswers;
+            if (checkedQuestions > 0) {
+                results.percentage = Math.round((correctAnswers / checkedQuestions) * 100);
+            } else {
+                results.percentage = 0;
+            }
             
             return results;
         }
@@ -4304,11 +4589,13 @@ service cloud.firestore {<br>
                     questionSetName: currentQuestionSet.name,
                     answers: results.answers,
                     score: results.score,
+                    uncheckedAnswers: results.uncheckedAnswers,
                     totalQuestions: results.totalQuestions,
                     percentage: results.percentage,
                     excellentScore: results.excellentScore,
                     timestamp: new Date().toISOString(),
-                    mskTime: getMoscowTime()
+                    mskTime: getMoscowTime(),
+                    isFullyChecked: results.uncheckedAnswers === 0
                 };
                 
                 await saveUserAnswer(userAnswer);
@@ -4340,12 +4627,19 @@ service cloud.firestore {<br>
             currentUnitElement.textContent = getUnitDisplayName(currentUser.unit || 'none');
             scoreElement.textContent = `${results.score} из ${results.totalQuestions}`;
             
-            if (results.percentage >= results.excellentScore) {
+            // Определяем сообщение в зависимости от результатов
+            if (results.uncheckedAnswers > 0) {
+                resultMessageElement.textContent = 'Тест завершен! Часть вопросов требует проверки администратором. Вы не можете пройти этот тест снова до завершения проверки.';
+                restartTestBtn.style.display = 'none';
+            } else if (results.percentage >= results.excellentScore) {
                 resultMessageElement.textContent = 'Отличный результат!';
+                restartTestBtn.style.display = 'none';
             } else if (results.percentage >= 60) {
                 resultMessageElement.textContent = 'Хороший результат!';
+                restartTestBtn.style.display = 'none';
             } else {
                 resultMessageElement.textContent = 'Вам нужно больше практики.';
+                restartTestBtn.style.display = 'none';
             }
             
             resultsSummaryElement.innerHTML = `
@@ -4358,8 +4652,8 @@ service cloud.firestore {<br>
                     <div class="summary-label">Правильных</div>
                 </div>
                 <div class="summary-item">
-                    <div class="summary-value">${results.totalQuestions - results.correctAnswers}</div>
-                    <div class="summary-label">Неправильных</div>
+                    <div class="summary-value">${results.uncheckedAnswers}</div>
+                    <div class="summary-label">Требуют проверки</div>
                 </div>
                 <div class="summary-item">
                     <div class="summary-value">${results.excellentScore}%</div>
@@ -4372,7 +4666,10 @@ service cloud.firestore {<br>
             results.answers.forEach((answer, index) => {
                 const resultItem = document.createElement('div');
                 
-                if (answer.isCorrect) {
+                // Определяем класс в зависимости от типа вопроса и статуса проверки
+                if (answer.questionType === 'text' && !answer.isChecked) {
+                    resultItem.className = 'result-item unchecked';
+                } else if (answer.isCorrect) {
                     resultItem.className = 'result-item correct';
                 } else if (answer.isAnswered) {
                     resultItem.className = 'result-item incorrect';
@@ -4380,42 +4677,37 @@ service cloud.firestore {<br>
                     resultItem.className = 'result-item unanswered';
                 }
                 
-                const userAnswerClass = answer.isCorrect ? 'user-answer correct' : 'user-answer';
-                
                 let answerHtml = `
                     <div class="result-question preserve-formatting">${index + 1}. ${answer.question}</div>
                 `;
                 
-                // Добавляем медиа в результаты, если оно есть
-                if (answer.mediaType && answer.mediaType !== 'none' && answer.mediaUrl) {
-                    if (answer.mediaType === 'image') {
-                        answerHtml += `<div class="media-container"><img src="${answer.mediaUrl}" alt="Изображение для вопроса" class="question-media" style="max-width: 300px; max-height: 200px;"></div>`;
-                    } else if (answer.mediaType === 'video') {
-                        if (answer.mediaUrl.includes('youtube.com') || answer.mediaUrl.includes('youtu.be')) {
-                            let videoId = '';
-                            if (answer.mediaUrl.includes('youtube.com/watch?v=')) {
-                                videoId = answer.mediaUrl.split('v=')[1].split('&')[0];
-                            } else if (answer.mediaUrl.includes('youtu.be/')) {
-                                videoId = answer.mediaUrl.split('youtu.be/')[1].split('?')[0];
-                            }
-                            
-                            if (videoId) {
-                                answerHtml += `<div class="media-container"><iframe width="300" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="question-video"></iframe></div>`;
-                            }
-                        }
+                if (answer.questionType === 'text') {
+                    answerHtml += `
+                        <div class="result-answer">Ваш ответ: <span class="user-answer">${answer.userAnswer}</span></div>
+                    `;
+                    
+                    if (!answer.isChecked) {
+                        answerHtml += `<div class="result-answer"><span class="unchecked-answer">Ожидает проверки администратором</span></div>`;
+                    } else if (answer.isCorrect) {
+                        answerHtml += `<div class="result-answer">Проверено: <span class="correct-answer">Правильно</span></div>`;
+                    } else {
+                        answerHtml += `<div class="result-answer">Проверено: <span class="incorrect-answer">Неправильно</span></div>`;
+                        answerHtml += `<div class="result-answer">Эталонный ответ: <span class="correct-answer">${answer.correctAnswer}</span></div>`;
                     }
-                }
-                
-                answerHtml += `
-                    <div class="result-answer">Ваш ответ: <span class="${userAnswerClass}">${answer.userAnswer}</span></div>
-                `;
-                
-                if (!answer.isCorrect) {
-                    answerHtml += `<div class="result-answer">Правильный ответ: <span class="correct-answer">${answer.correctAnswer}</span></div>`;
-                }
-                
-                if (!answer.isAnswered) {
-                    answerHtml += `<div class="result-answer">Вы не ответили на этот вопрос</div>`;
+                } else {
+                    const userAnswerClass = answer.isCorrect ? 'user-answer correct' : 'user-answer';
+                    
+                    answerHtml += `
+                        <div class="result-answer">Ваш ответ: <span class="${userAnswerClass}">${answer.userAnswer}</span></div>
+                    `;
+                    
+                    if (!answer.isCorrect) {
+                        answerHtml += `<div class="result-answer">Правильный ответ: <span class="correct-answer">${answer.correctAnswer}</span></div>`;
+                    }
+                    
+                    if (!answer.isAnswered) {
+                        answerHtml += `<div class="result-answer">Вы не ответили на этот вопрос</div>`;
+                    }
                 }
                 
                 resultItem.innerHTML = answerHtml;
@@ -4434,6 +4726,7 @@ service cloud.firestore {<br>
             await loadQuestionSetsList();
             await loadAssignmentsList();
             await loadUserAnswersList();
+            await loadVerificationListAdmin();
         }
 
         async function loadCuratorData() {
@@ -4441,6 +4734,8 @@ service cloud.firestore {<br>
             await loadQuestionSetsListForCurator();
             await loadAssignmentsListForCurator();
             await loadUserAnswersListForCurator();
+            await loadVerificationListCurator();
+            loadReportsForCurator();
         }
 
         async function loadUsersList() {
@@ -4912,6 +5207,8 @@ service cloud.firestore {<br>
                 
                 updateQuestionSetSelect();
                 updateAnswersTestSelect();
+                updateVerificationTestSelects();
+                updateReportTestSelects();
                 
             } catch (error) {
                 console.error('❌ Ошибка загрузки списка наборов вопросов:', error);
@@ -4932,10 +5229,61 @@ service cloud.firestore {<br>
                 });
                 
                 updateAnswersTestSelectForCurator();
+                updateVerificationTestSelects();
+                updateReportTestSelects();
                 
             } catch (error) {
                 console.error('❌ Ошибка загрузки списка наборов вопросов для куратора:', error);
             }
+        }
+
+        function updateVerificationTestSelects() {
+            const testSelectCurator = document.getElementById('filter-verification-test');
+            const testSelectAdmin = document.getElementById('filter-verification-test-admin');
+            
+            if (testSelectCurator) {
+                testSelectCurator.innerHTML = '<option value="">Все тесты</option>';
+            }
+            
+            if (testSelectAdmin) {
+                testSelectAdmin.innerHTML = '<option value="">Все тесты</option>';
+            }
+            
+            loadQuestionSets().then(questionSets => {
+                questionSets.forEach(qs => {
+                    const option = document.createElement('option');
+                    option.value = qs.id;
+                    option.textContent = qs.name;
+                    
+                    if (testSelectCurator) {
+                        testSelectCurator.appendChild(option.cloneNode(true));
+                    }
+                    
+                    if (testSelectAdmin) {
+                        testSelectAdmin.appendChild(option.cloneNode(true));
+                    }
+                });
+            });
+        }
+
+        function updateReportTestSelects() {
+            const testSelectCurator = document.getElementById('report-test');
+            
+            if (testSelectCurator) {
+                testSelectCurator.innerHTML = '<option value="">Все тесты</option>';
+            }
+            
+            loadQuestionSets().then(questionSets => {
+                questionSets.forEach(qs => {
+                    const option = document.createElement('option');
+                    option.value = qs.id;
+                    option.textContent = qs.name;
+                    
+                    if (testSelectCurator) {
+                        testSelectCurator.appendChild(option.cloneNode(true));
+                    }
+                });
+            });
         }
 
         async function addQuestionSet() {
@@ -5124,19 +5472,15 @@ service cloud.firestore {<br>
                 const questionItem = document.createElement('div');
                 questionItem.className = 'question-item';
                 
-                let mediaInfo = '';
-                if (question.mediaType && question.mediaType !== 'none' && question.mediaUrl) {
-                    if (question.mediaType === 'image') {
-                        mediaInfo = `<div class="question-text"><strong>Изображение:</strong> <a href="${question.mediaUrl}" target="_blank">${question.mediaUrl}</a></div>`;
-                    } else if (question.mediaType === 'video') {
-                        mediaInfo = `<div class="question-text"><strong>Видео:</strong> <a href="${question.mediaUrl}" target="_blank">${question.mediaUrl}</a></div>`;
-                    }
+                let questionType = 'Выбор из вариантов';
+                if (question.type === 'text' || question.correctAnswerText) {
+                    questionType = 'Самостоятельный ответ';
                 }
                 
                 questionItem.innerHTML = `
                     <div class="question-header">
                         <div>
-                            <strong>Вопрос ${index + 1}</strong>
+                            <strong>Вопрос ${index + 1} (${questionType})</strong>
                         </div>
                         <div class="question-actions">
                             <button class="btn btn-warning edit-question" data-set-id="${questionSet.id}" data-index="${index}">Редактировать</button>
@@ -5144,17 +5488,30 @@ service cloud.firestore {<br>
                         </div>
                     </div>
                     <div class="question-text preserve-formatting">${question.text}</div>
-                    ${mediaInfo}
-                    <div class="question-options">
-                        <strong>Варианты ответов:</strong>
-                        <ol>
-                            ${question.options.map((option, optIndex) => `
-                                <li>${option} ${optIndex === question.correctAnswer ? '✓' : ''}</li>
-                            `).join('')}
-                        </ol>
-                    </div>
-                    <div class="question-time">Время на вопрос: ${question.time || questionTime} сек.</div>
                 `;
+                
+                if (question.type === 'text' || question.correctAnswerText) {
+                    questionItem.innerHTML += `
+                        <div class="question-options">
+                            <strong>Тип:</strong> Самостоятельный ответ<br>
+                            <strong>Эталонный ответ для проверки:</strong><br>
+                            <div class="preserve-formatting" style="background-color: #f0f0f0; padding: 10px; border-radius: 4px; margin-top: 5px;">${question.correctAnswerText || 'Не указан'}</div>
+                        </div>
+                    `;
+                } else {
+                    questionItem.innerHTML += `
+                        <div class="question-options">
+                            <strong>Варианты ответов:</strong>
+                            <ol>
+                                ${question.options.map((option, optIndex) => `
+                                    <li>${option} ${optIndex === question.correctAnswer ? '✓' : ''}</li>
+                                `).join('')}
+                            </ol>
+                        </div>
+                    `;
+                }
+                
+                questionItem.innerHTML += `<div class="question-time">Время на вопрос: ${question.time || questionTime} сек.</div>`;
                 
                 questionsList.appendChild(questionItem);
             });
@@ -5221,10 +5578,14 @@ service cloud.firestore {<br>
             modalTitle.textContent = 'Добавление нового вопроса';
             modalQuestionText.value = '';
             modalOptionsContainer.innerHTML = '';
+            modalCorrectAnswerText.value = '';
             modalQuestionTime.value = questionTime;
             
-            // Сбрасываем медиа
-            resetMediaInputs();
+            // Сброс к типу "выбор из вариантов"
+            questionTypeChoice.checked = true;
+            choiceOptionsSection.style.display = 'block';
+            choiceCorrectAnswerSection.style.display = 'block';
+            textCorrectAnswerSection.style.display = 'none';
             
             addModalOption();
             addModalOption();
@@ -5253,86 +5614,45 @@ service cloud.firestore {<br>
                 modalQuestionText.value = question.text;
                 modalQuestionTime.value = question.time || questionTime;
                 
-                modalOptionsContainer.innerHTML = '';
-                
-                question.options.forEach((option, index) => {
-                    const optionEditor = document.createElement('div');
-                    optionEditor.className = 'option-editor';
+                // Определяем тип вопроса
+                if (question.type === 'text' || question.correctAnswerText) {
+                    // Вопрос с самостоятельным ответом
+                    questionTypeText.checked = true;
+                    choiceOptionsSection.style.display = 'none';
+                    choiceCorrectAnswerSection.style.display = 'none';
+                    textCorrectAnswerSection.style.display = 'block';
                     
-                    optionEditor.innerHTML = `
-                        <input type="text" class="modal-option-input" value="${option}" placeholder="Вариант ответа ${index + 1}">
-                        <button class="btn btn-danger remove-modal-option" type="button">×</button>
-                    `;
-                    
-                    modalOptionsContainer.appendChild(optionEditor);
-                    
-                    optionEditor.querySelector('.remove-modal-option').addEventListener('click', function() {
-                        optionEditor.remove();
-                        updateModalCorrectAnswerOptions();
-                    });
-                });
-                
-                // Настройка медиа
-                mediaTypeButtons.forEach(btn => btn.classList.remove('active'));
-                imageInputGroup.classList.add('hidden');
-                videoInputGroup.classList.add('hidden');
-                imagePreviewContainer.classList.add('hidden');
-                videoPreviewContainer.classList.add('hidden');
-                videoPreview.innerHTML = '';
-                
-                if (question.mediaType && question.mediaType !== 'none' && question.mediaUrl) {
-                    const activeBtn = document.querySelector(`.media-type-btn[data-type="${question.mediaType}"]`);
-                    if (activeBtn) {
-                        activeBtn.classList.add('active');
-                        currentMediaType = question.mediaType;
-                        
-                        if (question.mediaType === 'image') {
-                            modalImageUrl.value = question.mediaUrl;
-                            imagePreview.src = question.mediaUrl;
-                            imageInputGroup.classList.remove('hidden');
-                            imagePreviewContainer.classList.remove('hidden');
-                        } else if (question.mediaType === 'video') {
-                            modalVideoUrl.value = question.mediaUrl;
-                            videoInputGroup.classList.remove('hidden');
-                            
-                            // Предпросмотр видео
-                            if (question.mediaUrl.includes('youtube.com') || question.mediaUrl.includes('youtu.be')) {
-                                let videoId = '';
-                                if (question.mediaUrl.includes('youtube.com/watch?v=')) {
-                                    videoId = question.mediaUrl.split('v=')[1].split('&')[0];
-                                } else if (question.mediaUrl.includes('youtu.be/')) {
-                                    videoId = question.mediaUrl.split('youtu.be/')[1].split('?')[0];
-                                }
-                                
-                                if (videoId) {
-                                    const iframe = document.createElement('iframe');
-                                    iframe.width = '100%';
-                                    iframe.height = '200';
-                                    iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                                    iframe.frameBorder = '0';
-                                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                                    iframe.allowFullscreen = true;
-                                    videoPreview.appendChild(iframe);
-                                    videoPreviewContainer.classList.remove('hidden');
-                                }
-                            } else if (question.mediaUrl.endsWith('.mp4') || question.mediaUrl.endsWith('.webm') || question.mediaUrl.endsWith('.ogg')) {
-                                const video = document.createElement('video');
-                                video.width = '100%';
-                                video.height = '200';
-                                video.controls = true;
-                                video.src = question.mediaUrl;
-                                videoPreview.appendChild(video);
-                                videoPreviewContainer.classList.remove('hidden');
-                            }
-                        }
-                    }
+                    modalCorrectAnswerText.value = question.correctAnswerText || '';
+                    modalOptionsContainer.innerHTML = '';
                 } else {
-                    document.querySelector('.media-type-btn[data-type="none"]').classList.add('active');
-                    currentMediaType = 'none';
+                    // Вопрос с выбором из вариантов
+                    questionTypeChoice.checked = true;
+                    choiceOptionsSection.style.display = 'block';
+                    choiceCorrectAnswerSection.style.display = 'block';
+                    textCorrectAnswerSection.style.display = 'none';
+                    
+                    modalOptionsContainer.innerHTML = '';
+                    
+                    question.options.forEach((option, index) => {
+                        const optionEditor = document.createElement('div');
+                        optionEditor.className = 'option-editor';
+                        
+                        optionEditor.innerHTML = `
+                            <input type="text" class="modal-option-input" value="${option}" placeholder="Вариант ответа ${index + 1}">
+                            <button class="btn btn-danger remove-modal-option" type="button">×</button>
+                        `;
+                        
+                        modalOptionsContainer.appendChild(optionEditor);
+                        
+                        optionEditor.querySelector('.remove-modal-option').addEventListener('click', function() {
+                            optionEditor.remove();
+                            updateModalCorrectAnswerOptions();
+                        });
+                    });
+                    
+                    updateModalCorrectAnswerOptions();
+                    modalCorrectAnswer.value = question.correctAnswer;
                 }
-                
-                updateModalCorrectAnswerOptions();
-                modalCorrectAnswer.value = question.correctAnswer;
                 
                 questionModal.style.display = 'block';
                 
@@ -5344,24 +5664,11 @@ service cloud.firestore {<br>
 
         async function saveModalQuestion() {
             const questionText = modalQuestionText.value;
-            const correctAnswer = parseInt(modalCorrectAnswer.value);
             const questionTimeValue = parseInt(modalQuestionTime.value) || questionTime;
-            
-            const optionInputs = document.querySelectorAll('.modal-option-input');
-            const options = Array.from(optionInputs).map(input => input.value.trim()).filter(value => value !== '');
+            const questionType = questionTypeText.checked ? 'text' : 'choice';
             
             if (!questionText) {
                 alert('Введите текст вопроса');
-                return;
-            }
-            
-            if (options.length < 2) {
-                alert('Добавьте хотя бы два варианта ответа');
-                return;
-            }
-            
-            if (isNaN(correctAnswer) || correctAnswer < 0 || correctAnswer >= options.length) {
-                alert('Выберите правильный ответ из списка');
                 return;
             }
             
@@ -5374,21 +5681,46 @@ service cloud.firestore {<br>
                     return;
                 }
                 
-                const updatedQuestion = {
-                    text: questionText,
-                    options: options,
-                    correctAnswer: correctAnswer,
-                    time: questionTimeValue
-                };
+                let updatedQuestion;
                 
-                // Добавляем медиа данные
-                if (currentMediaType !== 'none') {
-                    updatedQuestion.mediaType = currentMediaType;
-                    if (currentMediaType === 'image') {
-                        updatedQuestion.mediaUrl = modalImageUrl.value.trim();
-                    } else if (currentMediaType === 'video') {
-                        updatedQuestion.mediaUrl = modalVideoUrl.value.trim();
+                if (questionType === 'text') {
+                    // Вопрос с самостоятельным ответом
+                    const correctAnswerText = modalCorrectAnswerText.value;
+                    
+                    if (!correctAnswerText) {
+                        alert('Введите эталонный ответ для проверки');
+                        return;
                     }
+                    
+                    updatedQuestion = {
+                        text: questionText,
+                        type: 'text',
+                        correctAnswerText: correctAnswerText,
+                        time: questionTimeValue
+                    };
+                } else {
+                    // Вопрос с выбором из вариантов
+                    const optionInputs = document.querySelectorAll('.modal-option-input');
+                    const options = Array.from(optionInputs).map(input => input.value.trim()).filter(value => value !== '');
+                    const correctAnswer = parseInt(modalCorrectAnswer.value);
+                    
+                    if (options.length < 2) {
+                        alert('Добавьте хотя бы два варианта ответа');
+                        return;
+                    }
+                    
+                    if (isNaN(correctAnswer) || correctAnswer < 0 || correctAnswer >= options.length) {
+                        alert('Выберите правильный ответ из списка');
+                        return;
+                    }
+                    
+                    updatedQuestion = {
+                        text: questionText,
+                        type: 'choice',
+                        options: options,
+                        correctAnswer: correctAnswer,
+                        time: questionTimeValue
+                    };
                 }
                 
                 if (currentEditingQuestionIndex === -1) {
@@ -5403,7 +5735,6 @@ service cloud.firestore {<br>
                 await saveQuestionSet(questionSets[questionSetIndex]);
                 
                 questionModal.style.display = 'none';
-                resetMediaInputs();
                 await loadQuestionsForSet();
                 
             } catch (error) {
@@ -5764,6 +6095,7 @@ service cloud.firestore {<br>
                                 <div><strong>Результат:</strong> ${answer.score}/${answer.totalQuestions} (${answer.percentage}%)</div>
                                 <div><strong>Процент для "отлично":</strong> ${answer.excellentScore || 80}%</div>
                                 <div><strong>Время прохождения:</strong> ${answer.mskTime || date}</div>
+                                <div><strong>Статус:</strong> ${answer.isFullyChecked ? 'Полностью проверен' : 'Требует проверки'}</div>
                                 <button class="btn btn-danger delete-user-answer" data-id="${answer.id}">Удалить результат</button>
                             </div>
                         </div>
@@ -5772,37 +6104,41 @@ service cloud.firestore {<br>
                     `;
                     
                     answer.answers.forEach((userAnswer, index) => {
-                        const answerClass = userAnswer.isCorrect ? 'correct' : (userAnswer.isAnswered ? 'incorrect' : 'unanswered');
-                        
-                        let mediaHtml = '';
-                        if (userAnswer.mediaType && userAnswer.mediaType !== 'none' && userAnswer.mediaUrl) {
-                            if (userAnswer.mediaType === 'image') {
-                                mediaHtml = `<div class="media-container"><img src="${userAnswer.mediaUrl}" alt="Изображение для вопроса" class="question-media" style="max-width: 200px; max-height: 150px;"></div>`;
-                            } else if (userAnswer.mediaType === 'video') {
-                                if (userAnswer.mediaUrl.includes('youtube.com') || userAnswer.mediaUrl.includes('youtu.be')) {
-                                    let videoId = '';
-                                    if (userAnswer.mediaUrl.includes('youtube.com/watch?v=')) {
-                                        videoId = userAnswer.mediaUrl.split('v=')[1].split('&')[0];
-                                    } else if (userAnswer.mediaUrl.includes('youtu.be/')) {
-                                        videoId = userAnswer.mediaUrl.split('youtu.be/')[1].split('?')[0];
-                                    }
-                                    
-                                    if (videoId) {
-                                        mediaHtml = `<div class="media-container"><iframe width="200" height="150" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="question-video"></iframe></div>`;
-                                    }
-                                }
-                            }
+                        let answerClass = '';
+                        if (userAnswer.questionType === 'text' && !userAnswer.isChecked) {
+                            answerClass = 'unchecked';
+                        } else if (userAnswer.isCorrect) {
+                            answerClass = 'correct';
+                        } else if (userAnswer.isAnswered) {
+                            answerClass = 'incorrect';
+                        } else {
+                            answerClass = 'unanswered';
                         }
                         
                         answerItem.innerHTML += `
                             <div class="answer-question ${answerClass}">
-                                ${mediaHtml}
                                 <div class="preserve-formatting"><strong>Вопрос ${index + 1}:</strong> ${userAnswer.question}</div>
+                                <div><strong>Тип:</strong> ${userAnswer.questionType === 'text' ? 'Самостоятельный ответ' : 'Выбор из вариантов'}</div>
                                 <div><strong>Ответ пользователя:</strong> ${userAnswer.userAnswer}</div>
-                                ${!userAnswer.isCorrect ? `<div><strong>Правильный ответ:</strong> ${userAnswer.correctAnswer}</div>` : ''}
-                                <div><strong>Статус:</strong> ${userAnswer.isCorrect ? 'Правильно' : (userAnswer.isAnswered ? 'Неправильно' : 'Не отвечено')}</div>
-                            </div>
                         `;
+                        
+                        if (userAnswer.questionType === 'text') {
+                            if (!userAnswer.isChecked) {
+                                answerItem.innerHTML += `<div><strong>Статус:</strong> <span class="unchecked-answer">Требует проверки</span></div>`;
+                            } else if (userAnswer.isCorrect) {
+                                answerItem.innerHTML += `<div><strong>Статус:</strong> <span class="correct-answer">Правильно</span></div>`;
+                            } else {
+                                answerItem.innerHTML += `<div><strong>Статус:</strong> <span class="incorrect-answer">Неправильно</span></div>`;
+                                answerItem.innerHTML += `<div><strong>Эталонный ответ:</strong> ${userAnswer.correctAnswer}</div>`;
+                            }
+                        } else {
+                            if (!userAnswer.isCorrect && userAnswer.isAnswered) {
+                                answerItem.innerHTML += `<div><strong>Правильный ответ:</strong> ${userAnswer.correctAnswer}</div>`;
+                            }
+                            answerItem.innerHTML += `<div><strong>Статус:</strong> ${userAnswer.isCorrect ? 'Правильно' : (userAnswer.isAnswered ? 'Неправильно' : 'Не отвечено')}</div>`;
+                        }
+                        
+                        answerItem.innerHTML += `</div>`;
                     });
                     
                     answerItem.innerHTML += `</div>`;
@@ -5881,6 +6217,7 @@ service cloud.firestore {<br>
                                 <div><strong>Результат:</strong> ${answer.score}/${answer.totalQuestions} (${answer.percentage}%)</div>
                                 <div><strong>Процент для "отлично":</strong> ${answer.excellentScore || 80}%</div>
                                 <div><strong>Время прохождения:</strong> ${answer.mskTime || date}</div>
+                                <div><strong>Статус:</strong> ${answer.isFullyChecked ? 'Полностью проверен' : 'Требует проверки'}</div>
                                 <button class="btn btn-danger delete-user-answer-curator" data-id="${answer.id}">Удалить результат</button>
                             </div>
                         </div>
@@ -5889,37 +6226,41 @@ service cloud.firestore {<br>
                     `;
                     
                     answer.answers.forEach((userAnswer, index) => {
-                        const answerClass = userAnswer.isCorrect ? 'correct' : (userAnswer.isAnswered ? 'incorrect' : 'unanswered');
-                        
-                        let mediaHtml = '';
-                        if (userAnswer.mediaType && userAnswer.mediaType !== 'none' && userAnswer.mediaUrl) {
-                            if (userAnswer.mediaType === 'image') {
-                                mediaHtml = `<div class="media-container"><img src="${userAnswer.mediaUrl}" alt="Изображение для вопроса" class="question-media" style="max-width: 200px; max-height: 150px;"></div>`;
-                            } else if (userAnswer.mediaType === 'video') {
-                                if (userAnswer.mediaUrl.includes('youtube.com') || userAnswer.mediaUrl.includes('youtu.be')) {
-                                    let videoId = '';
-                                    if (userAnswer.mediaUrl.includes('youtube.com/watch?v=')) {
-                                        videoId = userAnswer.mediaUrl.split('v=')[1].split('&')[0];
-                                    } else if (userAnswer.mediaUrl.includes('youtu.be/')) {
-                                        videoId = userAnswer.mediaUrl.split('youtu.be/')[1].split('?')[0];
-                                    }
-                                    
-                                    if (videoId) {
-                                        mediaHtml = `<div class="media-container"><iframe width="200" height="150" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="question-video"></iframe></div>`;
-                                    }
-                                }
-                            }
+                        let answerClass = '';
+                        if (userAnswer.questionType === 'text' && !userAnswer.isChecked) {
+                            answerClass = 'unchecked';
+                        } else if (userAnswer.isCorrect) {
+                            answerClass = 'correct';
+                        } else if (userAnswer.isAnswered) {
+                            answerClass = 'incorrect';
+                        } else {
+                            answerClass = 'unanswered';
                         }
                         
                         answerItem.innerHTML += `
                             <div class="answer-question ${answerClass}">
-                                ${mediaHtml}
                                 <div class="preserve-formatting"><strong>Вопрос ${index + 1}:</strong> ${userAnswer.question}</div>
+                                <div><strong>Тип:</strong> ${userAnswer.questionType === 'text' ? 'Самостоятельный ответ' : 'Выбор из вариантов'}</div>
                                 <div><strong>Ответ пользователя:</strong> ${userAnswer.userAnswer}</div>
-                                ${!userAnswer.isCorrect ? `<div><strong>Правильный ответ:</strong> ${userAnswer.correctAnswer}</div>` : ''}
-                                <div><strong>Статус:</strong> ${userAnswer.isCorrect ? 'Правильно' : (userAnswer.isAnswered ? 'Неправильно' : 'Не отвечено')}</div>
-                            </div>
                         `;
+                        
+                        if (userAnswer.questionType === 'text') {
+                            if (!userAnswer.isChecked) {
+                                answerItem.innerHTML += `<div><strong>Статус:</strong> <span class="unchecked-answer">Требует проверки</span></div>`;
+                            } else if (userAnswer.isCorrect) {
+                                answerItem.innerHTML += `<div><strong>Статус:</strong> <span class="correct-answer">Правильно</span></div>`;
+                            } else {
+                                answerItem.innerHTML += `<div><strong>Статус:</strong> <span class="incorrect-answer">Неправильно</span></div>`;
+                                answerItem.innerHTML += `<div><strong>Эталонный ответ:</strong> ${userAnswer.correctAnswer}</div>`;
+                            }
+                        } else {
+                            if (!userAnswer.isCorrect && userAnswer.isAnswered) {
+                                answerItem.innerHTML += `<div><strong>Правильный ответ:</strong> ${userAnswer.correctAnswer}</div>`;
+                            }
+                            answerItem.innerHTML += `<div><strong>Статус:</strong> ${userAnswer.isCorrect ? 'Правильно' : (userAnswer.isAnswered ? 'Неправильно' : 'Не отвечено')}</div>`;
+                        }
+                        
+                        answerItem.innerHTML += `</div>`;
                     });
                     
                     answerItem.innerHTML += `</div>`;
@@ -5939,6 +6280,630 @@ service cloud.firestore {<br>
             }
         }
 
+        async function loadVerificationListCurator() {
+            try {
+                const userAnswers = await loadUserAnswers();
+                const verificationList = document.getElementById('verification-list-curator');
+                verificationList.innerHTML = '';
+                
+                const filterUnit = filterVerificationUnitCurator ? filterVerificationUnitCurator.value : '';
+                const filterRole = filterVerificationRoleCurator ? filterVerificationRoleCurator.value : '';
+                const filterTest = filterVerificationTestCurator ? filterVerificationTestCurator.value : '';
+                const filterStatus = filterVerificationStatusCurator ? filterVerificationStatusCurator.value : '';
+                
+                let filteredAnswers = userAnswers;
+                
+                // Фильтрация по подразделению
+                if (filterUnit) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.userUnit === filterUnit);
+                }
+                
+                // Фильтрация по роли
+                if (filterRole) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.userRole === filterRole);
+                }
+                
+                // Фильтрация по тесту
+                if (filterTest) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.questionSetId === filterTest);
+                }
+                
+                // Куратор видит только ответы обычных пользователей
+                filteredAnswers = filteredAnswers.filter(answer => 
+                    answer.userRole === 'junior-sergeant' || 
+                    answer.userRole === 'sergeant' || 
+                    answer.userRole === 'junior-officer' ||
+                    answer.userRole === 'sanitary' ||
+                    answer.userRole === 'medic' ||
+                    answer.userRole === 'doctor'
+                );
+                
+                // Фильтрация по статусу проверки
+                if (filterStatus === 'unchecked') {
+                    filteredAnswers = filteredAnswers.filter(answer => 
+                        answer.answers.some(a => a.questionType === 'text' && !a.isChecked)
+                    );
+                } else if (filterStatus === 'checked') {
+                    filteredAnswers = filteredAnswers.filter(answer => 
+                        answer.answers.every(a => a.questionType !== 'text' || a.isChecked)
+                    );
+                }
+                
+                if (filteredAnswers.length === 0) {
+                    verificationList.innerHTML = '<p>Ответы для проверки не найдены</p>';
+                    return;
+                }
+                
+                filteredAnswers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                for (const answer of filteredAnswers) {
+                    const date = new Date(answer.timestamp).toLocaleString('ru-RU');
+                    
+                    // Считаем вопросы, требующие проверки
+                    const questionsToCheck = answer.answers.filter(a => a.questionType === 'text' && !a.isChecked);
+                    
+                    if (questionsToCheck.length === 0 && filterStatus !== 'checked') {
+                        continue;
+                    }
+                    
+                    const answerItem = document.createElement('div');
+                    answerItem.className = 'user-answer-item';
+                    
+                    answerItem.innerHTML = `
+                        <div class="user-answer-header">
+                            <div>
+                                <strong>${answer.userName}</strong>
+                                <span class="user-role ${'role-' + answer.userRole}">${getRoleDisplayName(answer.userRole)}</span>
+                                <span class="user-unit ${getUnitClass(answer.userUnit)}">${getUnitDisplayName(answer.userUnit)}</span>
+                            </div>
+                            <div class="user-answer-info">
+                                <div><strong>Тест:</strong> ${answer.questionSetName}</div>
+                                <div><strong>Время прохождения:</strong> ${answer.mskTime || date}</div>
+                                <div><strong>Вопросов для проверки:</strong> ${questionsToCheck.length}</div>
+                                <div><strong>Статус проверки:</strong> ${answer.isFullyChecked ? 'Полностью проверен' : 'Требует проверки'}</div>
+                            </div>
+                        </div>
+                        <div class="user-answer-details">
+                            <h4>Вопросы, требующие проверки:</h4>
+                    `;
+                    
+                    answer.answers.forEach((userAnswer, index) => {
+                        if (userAnswer.questionType === 'text' && !userAnswer.isChecked) {
+                            answerItem.innerHTML += `
+                                <div class="answer-question unchecked" id="question-${answer.id}-${index}">
+                                    <div class="preserve-formatting"><strong>Вопрос ${index + 1}:</strong> ${userAnswer.question}</div>
+                                    <div><strong>Ответ пользователя:</strong></div>
+                                    <div class="preserve-formatting" style="background-color: #f0f0f0; padding: 10px; border-radius: 4px; margin: 5px 0;">${userAnswer.userAnswer}</div>
+                                    <div><strong>Эталонный ответ:</strong></div>
+                                    <div class="preserve-formatting" style="background-color: #e8f5e9; padding: 10px; border-radius: 4px; margin: 5px 0;">${userAnswer.correctAnswer}</div>
+                                    <div class="verification-notes">
+                                        <label>Комментарий к проверке:</label>
+                                        <textarea id="verification-notes-${answer.id}-${index}" placeholder="Добавьте комментарий к проверке (необязательно)"></textarea>
+                                    </div>
+                                    <div class="verification-buttons">
+                                        <button class="btn btn-success verify-correct" data-answer-id="${answer.id}" data-question-index="${index}">Правильно</button>
+                                        <button class="btn btn-danger verify-incorrect" data-answer-id="${answer.id}" data-question-index="${index}">Неправильно</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    answerItem.innerHTML += `</div>`;
+                    verificationList.appendChild(answerItem);
+                }
+                
+                // Добавляем обработчики для кнопок проверки
+                verificationList.querySelectorAll('.verify-correct').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const answerId = this.getAttribute('data-answer-id');
+                        const questionIndex = parseInt(this.getAttribute('data-question-index'));
+                        const notes = document.getElementById(`verification-notes-${answerId}-${questionIndex}`)?.value || '';
+                        verifyAnswer(answerId, questionIndex, true, notes);
+                    });
+                });
+                
+                verificationList.querySelectorAll('.verify-incorrect').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const answerId = this.getAttribute('data-answer-id');
+                        const questionIndex = parseInt(this.getAttribute('data-question-index'));
+                        const notes = document.getElementById(`verification-notes-${answerId}-${questionIndex}`)?.value || '';
+                        verifyAnswer(answerId, questionIndex, false, notes);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('❌ Ошибка загрузки списка для проверки:', error);
+                verificationList.innerHTML = '<p>Ошибка при загрузке списка для проверки</p>';
+            }
+        }
+
+        async function loadVerificationListAdmin() {
+            try {
+                const userAnswers = await loadUserAnswers();
+                const verificationList = document.getElementById('verification-list-admin');
+                verificationList.innerHTML = '';
+                
+                const filterUnit = filterVerificationUnitAdmin ? filterVerificationUnitAdmin.value : '';
+                const filterRole = filterVerificationRoleAdmin ? filterVerificationRoleAdmin.value : '';
+                const filterTest = filterVerificationTestAdmin ? filterVerificationTestAdmin.value : '';
+                const filterStatus = filterVerificationStatusAdmin ? filterVerificationStatusAdmin.value : '';
+                
+                let filteredAnswers = userAnswers;
+                
+                // Фильтрация по подразделению
+                if (filterUnit) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.userUnit === filterUnit);
+                }
+                
+                // Фильтрация по роли
+                if (filterRole) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.userRole === filterRole);
+                }
+                
+                // Фильтрация по тесту
+                if (filterTest) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.questionSetId === filterTest);
+                }
+                
+                // Фильтрация по статусу проверки
+                if (filterStatus === 'unchecked') {
+                    filteredAnswers = filteredAnswers.filter(answer => 
+                        answer.answers.some(a => a.questionType === 'text' && !a.isChecked)
+                    );
+                } else if (filterStatus === 'checked') {
+                    filteredAnswers = filteredAnswers.filter(answer => 
+                        answer.answers.every(a => a.questionType !== 'text' || a.isChecked)
+                    );
+                }
+                
+                if (filteredAnswers.length === 0) {
+                    verificationList.innerHTML = '<p>Ответы для проверки не найдены</p>';
+                    return;
+                }
+                
+                filteredAnswers.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                for (const answer of filteredAnswers) {
+                    const date = new Date(answer.timestamp).toLocaleString('ru-RU');
+                    
+                    // Считаем вопросы, требующие проверки
+                    const questionsToCheck = answer.answers.filter(a => a.questionType === 'text' && !a.isChecked);
+                    
+                    if (questionsToCheck.length === 0 && filterStatus !== 'checked') {
+                        continue;
+                    }
+                    
+                    const answerItem = document.createElement('div');
+                    answerItem.className = 'user-answer-item';
+                    
+                    answerItem.innerHTML = `
+                        <div class="user-answer-header">
+                            <div>
+                                <strong>${answer.userName}</strong>
+                                <span class="user-role ${'role-' + answer.userRole}">${getRoleDisplayName(answer.userRole)}</span>
+                                <span class="user-unit ${getUnitClass(answer.userUnit)}">${getUnitDisplayName(answer.userUnit)}</span>
+                            </div>
+                            <div class="user-answer-info">
+                                <div><strong>Тест:</strong> ${answer.questionSetName}</div>
+                                <div><strong>Время прохождения:</strong> ${answer.mskTime || date}</div>
+                                <div><strong>Вопросов для проверки:</strong> ${questionsToCheck.length}</div>
+                                <div><strong>Статус проверки:</strong> ${answer.isFullyChecked ? 'Полностью проверен' : 'Требует проверки'}</div>
+                            </div>
+                        </div>
+                        <div class="user-answer-details">
+                            <h4>Вопросы, требующие проверки:</h4>
+                    `;
+                    
+                    answer.answers.forEach((userAnswer, index) => {
+                        if (userAnswer.questionType === 'text' && !userAnswer.isChecked) {
+                            answerItem.innerHTML += `
+                                <div class="answer-question unchecked" id="question-${answer.id}-${index}">
+                                    <div class="preserve-formatting"><strong>Вопрос ${index + 1}:</strong> ${userAnswer.question}</div>
+                                    <div><strong>Ответ пользователя:</strong></div>
+                                    <div class="preserve-formatting" style="background-color: #f0f0f0; padding: 10px; border-radius: 4px; margin: 5px 0;">${userAnswer.userAnswer}</div>
+                                    <div><strong>Эталонный ответ:</strong></div>
+                                    <div class="preserve-formatting" style="background-color: #e8f5e9; padding: 10px; border-radius: 4px; margin: 5px 0;">${userAnswer.correctAnswer}</div>
+                                    <div class="verification-notes">
+                                        <label>Комментарий к проверке:</label>
+                                        <textarea id="verification-notes-admin-${answer.id}-${index}" placeholder="Добавьте комментарий к проверке (необязательно)"></textarea>
+                                    </div>
+                                    <div class="verification-buttons">
+                                        <button class="btn btn-success verify-correct-admin" data-answer-id="${answer.id}" data-question-index="${index}">Правильно</button>
+                                        <button class="btn btn-danger verify-incorrect-admin" data-answer-id="${answer.id}" data-question-index="${index}">Неправильно</button>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    answerItem.innerHTML += `</div>`;
+                    verificationList.appendChild(answerItem);
+                }
+                
+                // Добавляем обработчики для кнопок проверки
+                verificationList.querySelectorAll('.verify-correct-admin').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const answerId = this.getAttribute('data-answer-id');
+                        const questionIndex = parseInt(this.getAttribute('data-question-index'));
+                        const notes = document.getElementById(`verification-notes-admin-${answerId}-${questionIndex}`)?.value || '';
+                        verifyAnswer(answerId, questionIndex, true, notes);
+                    });
+                });
+                
+                verificationList.querySelectorAll('.verify-incorrect-admin').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const answerId = this.getAttribute('data-answer-id');
+                        const questionIndex = parseInt(this.getAttribute('data-question-index'));
+                        const notes = document.getElementById(`verification-notes-admin-${answerId}-${questionIndex}`)?.value || '';
+                        verifyAnswer(answerId, questionIndex, false, notes);
+                    });
+                });
+                
+            } catch (error) {
+                console.error('❌ Ошибка загрузки списка для проверки:', error);
+                verificationList.innerHTML = '<p>Ошибка при загрузке списка для проверки</p>';
+            }
+        }
+
+        async function verifyAnswer(answerId, questionIndex, isCorrect, notes = '') {
+            try {
+                const userAnswers = await loadUserAnswers();
+                const userAnswer = userAnswers.find(ua => ua.id === answerId);
+                
+                if (!userAnswer) {
+                    alert('Ответ не найден');
+                    return;
+                }
+                
+                // Обновляем статус проверки вопроса
+                userAnswer.answers[questionIndex].isChecked = true;
+                userAnswer.answers[questionIndex].isCorrect = isCorrect;
+                userAnswer.answers[questionIndex].verificationStatus = isCorrect ? 'correct' : 'incorrect';
+                if (notes) {
+                    userAnswer.answers[questionIndex].verificationNotes = notes;
+                }
+                
+                // Пересчитываем результаты
+                let correctAnswers = 0;
+                let uncheckedAnswers = 0;
+                
+                userAnswer.answers.forEach(answer => {
+                    if (answer.questionType === 'text') {
+                        if (!answer.isChecked) {
+                            uncheckedAnswers++;
+                        } else if (answer.isCorrect) {
+                            correctAnswers++;
+                        }
+                    } else if (answer.isCorrect) {
+                        correctAnswers++;
+                    }
+                });
+                
+                userAnswer.score = correctAnswers;
+                userAnswer.uncheckedAnswers = uncheckedAnswers;
+                userAnswer.isFullyChecked = uncheckedAnswers === 0;
+                
+                // Рассчитываем процент только по проверенным вопросам
+                const checkedQuestions = userAnswer.totalQuestions - uncheckedAnswers;
+                if (checkedQuestions > 0) {
+                    userAnswer.percentage = Math.round((correctAnswers / checkedQuestions) * 100);
+                } else {
+                    userAnswer.percentage = 0;
+                }
+                
+                // Добавляем время проверки
+                userAnswer.verifiedAt = new Date().toISOString();
+                userAnswer.verifiedBy = currentRole === 'admin' ? 'Администратор' : 'Куратор';
+                
+                // Сохраняем обновленный ответ
+                await updateUserAnswer(userAnswer);
+                
+                // Обновляем интерфейс
+                if (currentRole === 'admin') {
+                    await loadVerificationListAdmin();
+                    await loadUserAnswersList();
+                } else if (currentRole === 'curator') {
+                    await loadVerificationListCurator();
+                    await loadUserAnswersListForCurator();
+                }
+                
+                alert('Ответ проверен!');
+                
+            } catch (error) {
+                console.error('❌ Ошибка проверки ответа:', error);
+                alert('Ошибка при проверке ответа');
+            }
+        }
+
+        async function loadReportsForCurator() {
+            const reportResults = document.getElementById('report-results');
+            reportResults.innerHTML = '<p>Используйте фильтры для формирования отчета и нажмите "Сформировать отчет"</p>';
+        }
+
+        async function generateReportForCurator() {
+            try {
+                const userAnswers = await loadUserAnswers();
+                const questionSets = await loadQuestionSets();
+                const users = await loadUsers();
+                
+                const filterUnit = document.getElementById('report-unit').value;
+                const filterRole = document.getElementById('report-role').value;
+                const filterTest = document.getElementById('report-test').value;
+                const filterPeriod = document.getElementById('report-period').value;
+                
+                let filteredAnswers = userAnswers;
+                
+                // Фильтрация по подразделению
+                if (filterUnit) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.userUnit === filterUnit);
+                }
+                
+                // Фильтрация по роли
+                if (filterRole) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.userRole === filterRole);
+                }
+                
+                // Фильтрация по тесту
+                if (filterTest) {
+                    filteredAnswers = filteredAnswers.filter(answer => answer.questionSetId === filterTest);
+                }
+                
+                // Фильтрация по периоду
+                if (filterPeriod !== 'all') {
+                    const now = new Date();
+                    let startDate = new Date();
+                    
+                    if (filterPeriod === 'month') {
+                        startDate.setMonth(now.getMonth() - 1);
+                    } else if (filterPeriod === 'week') {
+                        startDate.setDate(now.getDate() - 7);
+                    } else if (filterPeriod === 'day') {
+                        startDate.setDate(now.getDate() - 1);
+                    }
+                    
+                    filteredAnswers = filteredAnswers.filter(answer => {
+                        const answerDate = new Date(answer.timestamp);
+                        return answerDate >= startDate;
+                    });
+                }
+                
+                // Куратор видит только ответы обычных пользователей
+                filteredAnswers = filteredAnswers.filter(answer => 
+                    answer.userRole === 'junior-sergeant' || 
+                    answer.userRole === 'sergeant' || 
+                    answer.userRole === 'junior-officer' ||
+                    answer.userRole === 'sanitary' ||
+                    answer.userRole === 'medic' ||
+                    answer.userRole === 'doctor'
+                );
+                
+                if (filteredAnswers.length === 0) {
+                    document.getElementById('report-results').innerHTML = '<p>Нет данных для формирования отчета по выбранным критериям</p>';
+                    return;
+                }
+                
+                // Группируем данные для отчета
+                const reportData = {
+                    totalTests: filteredAnswers.length,
+                    totalUsers: new Set(filteredAnswers.map(a => a.userId)).size,
+                    averageScore: 0,
+                    excellentCount: 0,
+                    goodCount: 0,
+                    satisfactoryCount: 0,
+                    unsatisfactoryCount: 0,
+                    uncheckedCount: 0,
+                    byUnit: {},
+                    byRole: {},
+                    byTest: {}
+                };
+                
+                let totalPercentage = 0;
+                
+                filteredAnswers.forEach(answer => {
+                    // Считаем по оценкам
+                    if (!answer.isFullyChecked) {
+                        reportData.uncheckedCount++;
+                    } else if (answer.percentage >= answer.excellentScore) {
+                        reportData.excellentCount++;
+                    } else if (answer.percentage >= 60) {
+                        reportData.goodCount++;
+                    } else if (answer.percentage >= 40) {
+                        reportData.satisfactoryCount++;
+                    } else {
+                        reportData.unsatisfactoryCount++;
+                    }
+                    
+                    totalPercentage += answer.percentage;
+                    
+                    // Группируем по подразделению
+                    const unit = answer.userUnit;
+                    if (!reportData.byUnit[unit]) {
+                        reportData.byUnit[unit] = { count: 0, totalScore: 0 };
+                    }
+                    reportData.byUnit[unit].count++;
+                    reportData.byUnit[unit].totalScore += answer.percentage;
+                    
+                    // Группируем по роли
+                    const role = answer.userRole;
+                    if (!reportData.byRole[role]) {
+                        reportData.byRole[role] = { count: 0, totalScore: 0 };
+                    }
+                    reportData.byRole[role].count++;
+                    reportData.byRole[role].totalScore += answer.percentage;
+                    
+                    // Группируем по тесту
+                    const testId = answer.questionSetId;
+                    if (!reportData.byTest[testId]) {
+                        const test = questionSets.find(qs => qs.id === testId);
+                        reportData.byTest[testId] = { 
+                            name: test ? test.name : 'Неизвестный тест',
+                            count: 0, 
+                            totalScore: 0 
+                        };
+                    }
+                    reportData.byTest[testId].count++;
+                    reportData.byTest[testId].totalScore += answer.percentage;
+                });
+                
+                reportData.averageScore = filteredAnswers.length > 0 ? Math.round(totalPercentage / filteredAnswers.length) : 0;
+                
+                // Формируем HTML отчета
+                let reportHtml = `
+                    <h3>Отчет по тестированию</h3>
+                    <div class="results-summary">
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.totalTests}</div>
+                            <div class="summary-label">Всего тестов</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.totalUsers}</div>
+                            <div class="summary-label">Уникальных пользователей</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.averageScore}%</div>
+                            <div class="summary-label">Средний результат</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.uncheckedCount}</div>
+                            <div class="summary-label">Ожидают проверки</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Распределение по оценкам:</h4>
+                    <div class="results-summary">
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.excellentCount}</div>
+                            <div class="summary-label">Отлично</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.goodCount}</div>
+                            <div class="summary-label">Хорошо</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.satisfactoryCount}</div>
+                            <div class="summary-label">Удовлетворительно</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">${reportData.unsatisfactoryCount}</div>
+                            <div class="summary-label">Неудовлетворительно</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Добавляем таблицу по подразделениям
+                if (Object.keys(reportData.byUnit).length > 0) {
+                    reportHtml += `<h4>Результаты по подразделениям:</h4>`;
+                    reportHtml += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                    reportHtml += `<tr><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Подразделение</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Количество тестов</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Средний результат</th></tr>`;
+                    
+                    for (const [unit, data] of Object.entries(reportData.byUnit)) {
+                        const avgScore = data.count > 0 ? Math.round(data.totalScore / data.count) : 0;
+                        reportHtml += `<tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${getUnitDisplayName(unit)}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${data.count}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${avgScore}%</td>
+                        </tr>`;
+                    }
+                    
+                    reportHtml += `</table>`;
+                }
+                
+                // Добавляем таблицу по ролям
+                if (Object.keys(reportData.byRole).length > 0) {
+                    reportHtml += `<h4>Результаты по ролям:</h4>`;
+                    reportHtml += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                    reportHtml += `<tr><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Роль</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Количество тестов</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Средний результат</th></tr>`;
+                    
+                    for (const [role, data] of Object.entries(reportData.byRole)) {
+                        const avgScore = data.count > 0 ? Math.round(data.totalScore / data.count) : 0;
+                        reportHtml += `<tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${getRoleDisplayName(role)}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${data.count}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${avgScore}%</td>
+                        </tr>`;
+                    }
+                    
+                    reportHtml += `</table>`;
+                }
+                
+                // Добавляем таблицу по тестам
+                if (Object.keys(reportData.byTest).length > 0) {
+                    reportHtml += `<h4>Результаты по тестам:</h4>`;
+                    reportHtml += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`;
+                    reportHtml += `<tr><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Тест</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Количество прохождений</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Средний результат</th></tr>`;
+                    
+                    for (const [testId, data] of Object.entries(reportData.byTest)) {
+                        const avgScore = data.count > 0 ? Math.round(data.totalScore / data.count) : 0;
+                        reportHtml += `<tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${data.name}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${data.count}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">${avgScore}%</td>
+                        </tr>`;
+                    }
+                    
+                    reportHtml += `</table>`;
+                }
+                
+                // Добавляем кнопку экспорта
+                reportHtml += `<button class="btn btn-info" id="export-report">Экспортировать отчет в CSV</button>`;
+                
+                document.getElementById('report-results').innerHTML = reportHtml;
+                
+                // Добавляем обработчик для экспорта
+                document.getElementById('export-report').addEventListener('click', function() {
+                    exportReportToCSV(filteredAnswers, questionSets, users);
+                });
+                
+            } catch (error) {
+                console.error('❌ Ошибка формирования отчета:', error);
+                document.getElementById('report-results').innerHTML = '<p>Ошибка при формировании отчета</p>';
+            }
+        }
+
+        function exportReportToCSV(filteredAnswers, questionSets, users) {
+            try {
+                // Создаем CSV заголовок
+                let csvContent = "Пользователь,Подразделение,Роль,Тест,Результат,Процент,Статус проверки,Время прохождения\n";
+                
+                // Добавляем данные
+                filteredAnswers.forEach(answer => {
+                    const user = users.find(u => u.id === answer.userId);
+                    const questionSet = questionSets.find(qs => qs.id === answer.questionSetId);
+                    
+                    const row = [
+                        `"${answer.userName || 'Неизвестно'}"`,
+                        `"${getUnitDisplayName(answer.userUnit)}"`,
+                        `"${getRoleDisplayName(answer.userRole)}"`,
+                        `"${questionSet ? questionSet.name : 'Неизвестный тест'}"`,
+                        `"${answer.score}/${answer.totalQuestions}"`,
+                        `"${answer.percentage}%"`,
+                        `"${answer.isFullyChecked ? 'Проверен' : 'Ожидает проверки'}"`,
+                        `"${answer.mskTime || answer.timestamp}"`
+                    ].join(',');
+                    
+                    csvContent += row + '\n';
+                });
+                
+                // Создаем Blob и скачиваем файл
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `отчет_тестирования_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+            } catch (error) {
+                console.error('❌ Ошибка экспорта отчета:', error);
+                alert('Ошибка при экспорте отчета');
+            }
+        }
+
         async function deleteUserAnswerById(answerId) {
             if (!confirm('Вы уверены, что хотите удалить этот результат тестирования?')) {
                 return;
@@ -5948,8 +6913,10 @@ service cloud.firestore {<br>
                 await deleteUserAnswer(answerId);
                 if (currentRole === 'admin') {
                     await loadUserAnswersList();
+                    await loadVerificationListAdmin();
                 } else if (currentRole === 'curator') {
                     await loadUserAnswersListForCurator();
+                    await loadVerificationListCurator();
                 }
             } catch (error) {
                 console.error('❌ Ошибка удаления результата:', error);
